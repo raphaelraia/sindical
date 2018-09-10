@@ -365,6 +365,27 @@ public class MovimentosReceberSocialDao extends DB {
         }
         return null;
     }
+    public Pessoa titularBoleto(String nr_ctr_boleto) {
+        if (nr_ctr_boleto.isEmpty()) {
+            return null;
+        }
+        String textqry
+                = " SELECT m.id_titular \n "
+                + "  FROM fin_boleto b \n "
+                + " INNER JOIN fin_movimento m ON m.nr_ctr_boleto = b.nr_ctr_boleto \n "
+                + " WHERE b.nr_ctr_boleto = '" + nr_ctr_boleto + "' \n "
+                + " GROUP BY m.id_titular";
+
+        Query qry = getEntityManager().createNativeQuery(textqry);
+        List<Vector> result = qry.getResultList();
+
+        try {
+            return (Pessoa) new Dao().find(new Pessoa(), result.get(0).get(0));
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return null;
+    }
 
     public List<TransferenciaCaixa> transferenciaCaixa(Integer id_fechamento_caixa_saida) {
         String textqry

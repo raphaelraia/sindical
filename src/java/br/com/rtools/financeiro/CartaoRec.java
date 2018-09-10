@@ -18,17 +18,21 @@ public class CartaoRec implements java.io.Serializable {
     @JoinColumn(name = "id_cartao", referencedColumnName = "id")
     @ManyToOne
     private Cartao cartao;
+    @Column(name = "ds_parcela", length = 5)
+    private String parcela;
 
     public CartaoRec() {
         this.id = -1;
         this.dtLiquidacao = null;
         this.cartao = new Cartao();
+        this.parcela = "";
     }
 
-    public CartaoRec(int id, Date dtLiquidacao, Cartao cartao) {
+    public CartaoRec(int id, Date dtLiquidacao, Cartao cartao, String parcela) {
         this.id = id;
         this.dtLiquidacao = dtLiquidacao;
         this.cartao = cartao;
+        this.parcela = parcela;
     }
 
     public CartaoRec(int id) {
@@ -57,5 +61,13 @@ public class CartaoRec implements java.io.Serializable {
 
     public void setCartao(Cartao cartao) {
         this.cartao = cartao;
+    }
+
+    public String getParcela() {
+        return parcela;
+    }
+
+    public void setParcela(String parcela) {
+        this.parcela = parcela;
     }
 }

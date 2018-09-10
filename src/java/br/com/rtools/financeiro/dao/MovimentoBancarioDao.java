@@ -21,7 +21,7 @@ import javax.persistence.Query;
  */
 public class MovimentoBancarioDao extends DB {
 
-    public List<Object> listaMovimentoBancario(Integer id_plano5, String es, String tipo_pagamento, String status) {
+    public List<Object> listaMovimentoBancario(Integer id_plano5, String es, String tipo_pagamento, String status, String dataInicial, String dataFinal) {
         try {
             List<String> list_where = new ArrayList();
 
@@ -63,6 +63,14 @@ public class MovimentoBancarioDao extends DB {
                         list_where.add("(chr.id_status <> 8 OR chp.id_status <> 8)");
                         break;
                 }
+            }
+
+            if (!dataInicial.isEmpty()) {
+                list_where.add("b.dt_baixa >= '" + dataInicial + "'");
+            }
+
+            if (!dataFinal.isEmpty()) {
+                list_where.add("b.dt_baixa <= '" + dataFinal + "'");
             }
 
             //list_where.add("f.id_status = " + id_status);

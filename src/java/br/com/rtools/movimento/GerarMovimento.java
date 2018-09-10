@@ -1448,6 +1448,26 @@ public class GerarMovimento extends DB {
 
             double acrescimo_f = valorAcrescimo, acrescimo_m = valorAcrescimo;
 
+//            Integer qnt_cartao_rec = 0;
+//            for (FormaPagamento fp1 : fp) {
+//                if (fp1.getCartaoRec() != null) {
+//                    qnt_cartao_rec++;
+//                }
+//            }
+//
+//            for (FormaPagamento fp1 : fp) {
+//                if (fp1.getCartaoRec() != null) {
+//                    CartaoRec cartao_rec;
+//                    if (fp1.getCartaoRec().getCartao().getDebitoCredito().equals("D")) {
+//                        fp1.getCartaoRec().setParcela("1/1");
+//                    } else {
+//                        Integer qnt = tipo_cartao_credito + 1;
+//                        cartao_rec = new CartaoRec(-1, null, cart, "1/" + qnt_cartao_rec);
+//                    }
+//
+//                }
+//            }
+            
             for (FormaPagamento fp1 : fp) {
                 fp1.setBaixa(baixa);
                 double calc = (fp1.getValor() == 0) ? 100 : Moeda.multiplicar(Moeda.divisao(fp1.getValor(), valorTotal), 100);
@@ -1509,6 +1529,7 @@ public class GerarMovimento extends DB {
                 if (fp1.getCartaoRec() != null) {
                     cartao_rec.setDtLiquidacao(fp1.getCartaoRec().getDtLiquidacao());
                     cartao_rec.setCartao(fp1.getCartaoRec().getCartao());
+                    cartao_rec.setParcela(fp1.getCartaoRec().getParcela());
 
                     if (!dao.save(cartao_rec)) {
                         dao.rollback();

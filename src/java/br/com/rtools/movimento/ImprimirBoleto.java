@@ -2427,16 +2427,30 @@ public class ImprimirBoleto implements Serializable {
 //                }
                 String contabilidade = "";
                 if (lista_socio.isEmpty()) {
-                    if (dbf.pesquisaFisicaPorPessoa(pessoa.getId()) != null) {
-                        lista_socio = db.listaBoletoSocioFisica(boleto.getNrCtrBoleto(), view); // NR_CTR_BOLETO
-                    } else {
-                        lista_socio = db.listaBoletoSocioJuridica(boleto.getNrCtrBoleto(), view); // NR_CTR_BOLETO
-                        Juridica j = dbj.pesquisaJuridicaPorPessoa(pessoa.getId());
-                        String doc = (j.getContabilidade() != null
-                                && !j.getContabilidade().getPessoa().getDocumento().isEmpty()
-                                && !j.getContabilidade().getPessoa().getDocumento().equals("0")) ? j.getContabilidade().getPessoa().getDocumento() + " - " : " ";
 
-                        contabilidade = (j.getContabilidade() != null) ? "CONTABILIDADE : " + doc + j.getContabilidade().getPessoa().getNome() : "";
+                    Fisica f = dbf.pesquisaFisicaPorPessoa(pessoa.getId());
+
+                    Juridica j = dbj.pesquisaJuridicaPorPessoa(pessoa.getId());
+
+                    // SE RESPONSAVEL (id_pessoa = FISICA)
+                    if (f != null) {
+                        lista_socio = db.listaBoletoSocioFisica(boleto.getNrCtrBoleto(), view); // NR_CTR_BOLETO
+                        // SE RESPONSAVEL (id_pessoa = JURDICA)
+                    } else if (j != null) {
+                        Pessoa p_titular = dbs.titularBoleto(boleto.getNrCtrBoleto());
+                        f = dbf.pesquisaFisicaPorPessoa(p_titular.getId());
+
+                        if (f == null) {
+                            lista_socio = db.listaBoletoSocioFisica(boleto.getNrCtrBoleto(), view); // NR_CTR_BOLETO
+                        } else {
+                            lista_socio = db.listaBoletoSocioJuridica(boleto.getNrCtrBoleto(), view); // NR_CTR_BOLETO
+                            String doc = (j.getContabilidade() != null
+                                    && !j.getContabilidade().getPessoa().getDocumento().isEmpty()
+                                    && !j.getContabilidade().getPessoa().getDocumento().equals("0")) ? j.getContabilidade().getPessoa().getDocumento() + " - " : " ";
+
+                            contabilidade = (j.getContabilidade() != null) ? "CONTABILIDADE : " + doc + j.getContabilidade().getPessoa().getNome() : "";
+                        }
+
                     }
                 }
 
@@ -2502,7 +2516,7 @@ public class ImprimirBoleto implements Serializable {
 //                    if (DataHoje.maiorData(DataHoje.converteData((Date) lista_socio.get(w).get(38)), "01/" + DataHoje.converteData((Date) lista_socio.get(w).get(40)).substring(3))
 //                            || DataHoje.igualdadeData(DataHoje.converteData((Date) lista_socio.get(w).get(38)), "01/" + DataHoje.converteData((Date) lista_socio.get(w).get(40)).substring(3))) {
                     qntItens++;
-                    
+
                     // NÃO ESTA PEGANDO O VALOR CALCULADO DE FIN_BOLETO
                     //----                    
                     double valor = Moeda.converteUS$(lista_socio.get(w).get(14).toString());

@@ -15,11 +15,12 @@
                 <br />
                 <h:outputLabel value="Tempo médio de espera em #{sisProcessoBean.tempoMedio()} ms" styleClass="bold"/>
                 <f:facet name="footer">
-                    <p:commandButton value="Abortar" action="#{runningProcess.kill()}" rendered="#{runningProcess.renderedKill}" update=":form_running_process:id_running_process_status"/>
+                    <p:commandButton value="Abortar" action="#{runningProcess.kill()}" rendered="#{runningProcess.renderedKill}" />
                 </f:facet>
             </p:dialog>
         </h:panelGroup>
-        <p:ajaxStatus id="id_running_process_status" onstart="PF('dlg_running_process_status').show();" onsuccess="PF('dlg_running_process_status').hide();" />
+        <!--
+        <p:ajaxStatus id="id_running_process_status" onstart="PF('dlg_running_process_status').show();" oncomplete="PF('dlg_running_process_status').hide();" />
         <p:dialog modal="true" widgetVar="dlg_running_process_status" header="Status" draggable="false" closable="false" resizable="false">
             <h:outputLabel value="Carregando ... Aguarde" />
         </p:dialog>
@@ -40,6 +41,6 @@
             <f:facet name="footer">
                 <h:outputLabel value="Entrar em contato com o administrador do sistema." />            
             </f:facet>
-        </p:dialog>
+        </p:dialog>-->
     </h:form>
 </ui:composition>

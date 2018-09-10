@@ -131,6 +131,8 @@
                                     <p:outputLabel value="#{movimentoBancarioBean.esFiltro eq 'E' ? '[ Entrada ]' : '[ Saída ]'}" rendered="#{movimentoBancarioBean.esFiltro ne 'todos'}" style="margin-left: 20px; font-weight: bold"/>
                                     <p:outputLabel value="[ #{movimentoBancarioBean.tipoPagamentoFiltro} ]" rendered="#{movimentoBancarioBean.tipoPagamentoFiltro ne 'todos'}" style="margin-left: 20px; font-weight: bold"/>
                                     <p:outputLabel value="[ #{movimentoBancarioBean.statusFiltro} ]" rendered="#{movimentoBancarioBean.statusFiltro ne 'todos'}" style="margin-left: 20px; font-weight: bold"/>
+                                    <p:outputLabel value="[ Data Inicial: #{movimentoBancarioBean.dataInicial} ]" rendered="#{movimentoBancarioBean.dataInicial ne ''}" style="margin-left: 20px; font-weight: bold"/>
+                                    <p:outputLabel value="[ Data Final: #{movimentoBancarioBean.dataFinal} ]" rendered="#{movimentoBancarioBean.dataFinal ne ''}" style="margin-left: 20px; font-weight: bold"/>
 
                                     <p:commandLink value="[x] Limpar" action="#{movimentoBancarioBean.limparFiltro()}"  update="@form" rendered="#{movimentoBancarioBean.temFiltro() eq true}"/>
                                 </h:panelGrid>
@@ -219,7 +221,9 @@
                                     </p:dataTable>
                                 </p:rowExpansion>
                             </p:dataTable>
-
+                            
+                            <p:commandButton value="Imprimir Extrato" action="#{movimentoBancarioBean.imprimirExtrato()}" ajax="false" icon="ui-icon-print"/>
+                            
                             <h:panelGrid style="width: 100%">
                                 <h:panelGrid columns="2" style="float: right">
                                     <p:outputLabel value="SALDO R$: " style="font-weight: bold; font-size: 12pt!important"/>
@@ -285,7 +289,7 @@
 
                             <p:dialog widgetVar="dlg_filtro_movimentos" header="Filtrar Movimentos" resizable="false" width="800" modal="true">
                                 <h:panelGrid id="panel_filtro_movimentos">
-                                    <h:panelGrid columns="3">
+                                    <h:panelGrid columns="5">
                                         <h:column>
                                             <p:outputLabel value="Tipo" /><br />
                                             <p:selectOneMenu value="#{movimentoBancarioBean.esFiltro}">
@@ -318,10 +322,24 @@
                                                 <f:selectItem itemLabel="Compensados" itemValue="compensados"/>
                                             </p:selectOneMenu>
                                         </h:column>
+                                        
+                                        <h:column>
+                                            <p:outputLabel value="Data Inicial" /><br />
+                                            <p:inputMask value="#{movimentoBancarioBean.dataInicial}" mask="99/99/9999" style="width: 80px">
+                                                <p:ajax update="@this" global="false"/>
+                                            </p:inputMask>
+                                        </h:column>
+                                        
+                                        <h:column>
+                                            <p:outputLabel value="Data Final" /><br />
+                                            <p:inputMask value="#{movimentoBancarioBean.dataFinal}" mask="99/99/9999" style="width: 80px">
+                                                <p:ajax update="@this" global="false"/>
+                                            </p:inputMask>
+                                        </h:column>
                                     </h:panelGrid>
 
                                     <h:panelGrid>
-                                        <p:commandButton value="Filtrar" action="#{movimentoBancarioBean.loadListaMovimento()}" update="@form"/>
+                                        <p:commandButton value="Filtrar" action="#{movimentoBancarioBean.loadListaMovimento()}" update="@form" icon="ui-icon-search"/>
                                     </h:panelGrid>
                                 </h:panelGrid>
                             </p:dialog>

@@ -99,6 +99,10 @@
                                     <p:outputLabel value="#{linha.creditoString}" />
                                 </p:column>
 
+                                <p:column headerText="Parcela" style="text-align: center; width: 80px">
+                                    <p:outputLabel value="#{linha.formaPagamento.cartaoRec.parcela}" />
+                                </p:column>
+
                                 <p:column headerText="Valor" style="text-align: right">
                                     <p:outputLabel value="#{linha.valorString}" />
                                 </p:column>
@@ -115,7 +119,7 @@
                                     <p:column>
 
                                     </p:column>
-                                    <p:column colspan="4" style="text-align: right">
+                                    <p:column colspan="5" style="text-align: right">
                                         <h:outputText value="Total:" />
                                     </p:column>
 

@@ -124,6 +124,8 @@ public class BaixaGeralBean implements Serializable {
     private String valorAcrescimo = "";
     private boolean confirmaAcrescimo = false;
 
+    private Integer parcelasCartao = 1;
+
     @PostConstruct
     public void init() {
         cfb.init();
@@ -141,16 +143,25 @@ public class BaixaGeralBean implements Serializable {
         dataEmissaoRecibo = "";
     }
 
-    public void confirmarAcrescimo() {
-        confirmaAcrescimo = true;
-    }
-
-    public void atualizaCartao() {
-        if (!listaCartao.isEmpty()){
+    public void atualizaDataCartao() {
+        if (!listaCartao.isEmpty()) {
             Cartao cart = (Cartao) new Dao().find(new Cartao(), Integer.valueOf(listaCartao.get(idCartao).getDescription()));
 
             dataCreditoCartao = DataHoje.converte(new DataHoje().incrementarDias(cart.getDias(), quitacao));
         }
+    }
+
+    public void atualizaParcelasCartao() {
+        atualizaDataCartao();
+    }
+
+    public void atualizaCartao() {
+        atualizaDataCartao();
+        parcelasCartao = 1;
+    }
+
+    public void confirmarAcrescimo() {
+        confirmaAcrescimo = true;
     }
 
     public void atualizaDataOcorrencia() {
@@ -347,6 +358,7 @@ public class BaixaGeralBean implements Serializable {
         double valorGrid = 0;
         int tipo_dinheiro = 0;
         int tipo_cheque = 0;
+        int tipo_cartao_debito = 0, tipo_cartao_credito = 0;
 
         for (ListValoresBaixaGeral listaValore : listaValores) {
             valorGrid = Moeda.soma(valorGrid, Moeda.converteStringToDouble(listaValore.getValor()));
@@ -360,7 +372,10 @@ public class BaixaGeralBean implements Serializable {
                     tipo_cheque++;
                     break;
                 case 6: // CARTÃO CRÉDITO
+                    tipo_cartao_credito++;
+                    break;
                 case 7: // CARTÃO DÉBITO
+                    tipo_cartao_debito++;
                     break;
                 case 2: // BOLETO
                 case 8: // DEPÓSITO BANCÁRIO
@@ -480,15 +495,30 @@ public class BaixaGeralBean implements Serializable {
                     GenericaMensagem.error("SISTEMA", "NENHUM CARTÃO CADASTRADO!");
                     return;
                 }
+
                 Cartao cart = (Cartao) new Dao().find(new Cartao(), Integer.valueOf(listaCartao.get(idCartao).getDescription()));
-                if (!getEs().isEmpty() && getEs().equals("S")) {
-                    CartaoPag cartao_pag = null;
-                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, cart, cartao_pag, null, Moeda.converteR$Double(valorDigitado), null, null, null, DataHoje.dataHoje(), dataCreditoCartao));
-                } else {
-                    CartaoRec cartao_rec = new CartaoRec(-1, null, cart);
-                    listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, cart, null, cartao_rec, Moeda.converteR$Double(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8), null, null, DataHoje.dataHoje(), dataCreditoCartao));
-                }
-                if (!listaCartao.get(0).getDescription().isEmpty()) {
+
+                Double vl_inicio = valorDigitado;
+                for (Integer i = 0; i < parcelasCartao; i++) {
+                    if (!getEs().isEmpty() && getEs().equals("S")) {
+                        CartaoPag cartao_pag = null;
+                        listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, cart, cartao_pag, null, Moeda.converteR$Double(valorDigitado), null, null, null, DataHoje.dataHoje(), dataCreditoCartao));
+                    } else {
+                        CartaoRec cartao_rec;
+                        Double vl_parcela = Moeda.divisao(valorDigitado, parcelasCartao);
+                        if (cart.getDebitoCredito().equals("D")) {
+                            cartao_rec = new CartaoRec(-1, null, cart, "1/1");
+                        } else {
+                            cartao_rec = new CartaoRec(-1, null, cart, "" + (i + 1) + "/" + parcelasCartao);
+                        }
+                        
+                        if ((i + 1) == parcelasCartao) {
+                            vl_parcela = vl_inicio;
+                        }
+                        vl_inicio = Moeda.converteDoubleToDouble(vl_inicio - vl_parcela, 2);
+                        listaValores.add(new ListValoresBaixaGeral(vencimento, Moeda.converteDoubleToString(vl_parcela), numero, tipoPagamento, null, null, null, cart, null, cartao_rec, Moeda.converteDoubleToString(vl_parcela), (FStatus) (new Dao()).find(new FStatus(), 8), null, null, DataHoje.dataHoje(), dataCreditoCartao));
+                        dataCreditoCartao = DataHoje.converte(new DataHoje().incrementarMeses(1, DataHoje.converteData(dataCreditoCartao)));
+                    }
                 }
 
                 dataCreditoCartao = null;
@@ -1669,5 +1699,13 @@ public class BaixaGeralBean implements Serializable {
 
     public void setConfirmaAcrescimo(boolean confirmaAcrescimo) {
         this.confirmaAcrescimo = confirmaAcrescimo;
+    }
+
+    public Integer getParcelasCartao() {
+        return parcelasCartao;
+    }
+
+    public void setParcelasCartao(Integer parcelasCartao) {
+        this.parcelasCartao = parcelasCartao;
     }
 }

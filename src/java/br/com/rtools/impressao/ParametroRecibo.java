@@ -37,6 +37,11 @@ public class ParametroRecibo {
     private String formaPagamento8;
     private String formaPagamento9;
     private String formaPagamento10;
+    private String formaPagamento11;
+    private String formaPagamento12;
+    private String formaPagamento13;
+    private String formaPagamento14;
+    private String formaPagamento15;
     private String conveniada;
     private String lblVencimento;
     private String mensagem;
@@ -48,7 +53,7 @@ public class ParametroRecibo {
     public ParametroRecibo(String sinLogo, String sinNome, String sinEndereco, String sinLogradouro, String sinNumero, String sinComplemento, String sinBairro, String sinCep, String sinCidade, String sinUF, 
                            String sinTelefone, String sinEmail, String sinSite, String sinDocumento, String responsavel, String idResponsavel, String idBaixa, String beneficiario, String servico, String vencimento, 
                            BigDecimal valorBaixa, String usuario, String dataPagamento, String horaPagamento, String formaPagamento1, String formaPagamento2, String formaPagamento3, String formaPagamento4, String formaPagamento5,
-                           String formaPagamento6, String formaPagamento7, String formaPagamento8, String formaPagamento9, String formaPagamento10, String conveniada, String lblVencimento, String mensagem, String documento,
+                           String formaPagamento6, String formaPagamento7, String formaPagamento8, String formaPagamento9, String formaPagamento10, String formaPagamento11, String formaPagamento12, String formaPagamento13, String formaPagamento14, String formaPagamento15, String conveniada, String lblVencimento, String mensagem, String documento,
                            String totalDinheiroTroco, String troco, String totalOutros) {
         this.sinLogo = sinLogo;
         this.sinNome = sinNome;
@@ -84,6 +89,11 @@ public class ParametroRecibo {
         this.formaPagamento8 = formaPagamento8;
         this.formaPagamento9 = formaPagamento9;
         this.formaPagamento10 = formaPagamento10;
+        this.formaPagamento11 = formaPagamento11;
+        this.formaPagamento12 = formaPagamento12;
+        this.formaPagamento13 = formaPagamento13;
+        this.formaPagamento14 = formaPagamento14;
+        this.formaPagamento15 = formaPagamento15;
         this.conveniada = conveniada;
         this.lblVencimento = lblVencimento;
         this.mensagem = mensagem;
@@ -419,6 +429,46 @@ public class ParametroRecibo {
 
     public void setTotalOutros(String totalOutros) {
         this.totalOutros = totalOutros;
+    }
+
+    public String getFormaPagamento11() {
+        return formaPagamento11;
+    }
+
+    public void setFormaPagamento11(String formaPagamento11) {
+        this.formaPagamento11 = formaPagamento11;
+    }
+
+    public String getFormaPagamento12() {
+        return formaPagamento12;
+    }
+
+    public void setFormaPagamento12(String formaPagamento12) {
+        this.formaPagamento12 = formaPagamento12;
+    }
+
+    public String getFormaPagamento13() {
+        return formaPagamento13;
+    }
+
+    public void setFormaPagamento13(String formaPagamento13) {
+        this.formaPagamento13 = formaPagamento13;
+    }
+
+    public String getFormaPagamento14() {
+        return formaPagamento14;
+    }
+
+    public void setFormaPagamento14(String formaPagamento14) {
+        this.formaPagamento14 = formaPagamento14;
+    }
+
+    public String getFormaPagamento15() {
+        return formaPagamento15;
+    }
+
+    public void setFormaPagamento15(String formaPagamento15) {
+        this.formaPagamento15 = formaPagamento15;
     }
 
 

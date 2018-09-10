@@ -5,7 +5,6 @@ import br.com.rtools.financeiro.CartaoPag;
 import br.com.rtools.financeiro.CartaoRec;
 import br.com.rtools.financeiro.ChequePag;
 import br.com.rtools.financeiro.ChequeRec;
-import br.com.rtools.financeiro.Conciliacao;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.ContaOperacao;
 import br.com.rtools.financeiro.ContaSaldo;
@@ -22,7 +21,6 @@ import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.dao.ContaOperacaoDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.financeiro.dao.MovimentoBancarioDao;
-import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.Plano5Dao;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.logSistema.NovoLog;
@@ -33,6 +31,7 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
+import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
 import java.io.Serializable;
@@ -41,10 +40,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import net.sf.jasperreports.engine.JasperReport;
 
 @ManagedBean
 @SessionScoped
@@ -86,6 +87,8 @@ public class MovimentoBancarioBean implements Serializable {
     private String esFiltro = "todos";
     private String tipoPagamentoFiltro = "todos";
     private String statusFiltro = "todos";
+    private String dataInicial = "";
+    private String dataFinal = "";
     // ---
 
     private Date dataChequeStatus = DataHoje.dataHoje();
@@ -134,11 +137,45 @@ public class MovimentoBancarioBean implements Serializable {
         esFiltro = "todos";
         tipoPagamentoFiltro = "todos";
         statusFiltro = "todos";
+        dataInicial = "";
+        dataFinal = "";
         // ---
 
         loadListaContaOperacao();
         loadListaStatus();
         loadListaMovimento();
+    }
+
+    public void imprimirExtrato() {
+
+        Jasper jasper = new Jasper();
+        JasperReport jreport = Jasper.load("EXTRATO_MOVIMENTO_BANCARIO.jasper");
+
+        List<ExtratoDeMovimentos> list = new ArrayList();
+        
+        for (ObjectMovimentoBancario omb : listaMovimento){
+            list.add(new ExtratoDeMovimentos(
+                    omb.getBaixa().getDtBaixa(), 
+                    omb.getFormaPagamento().getTipoPagamento().getDescricao(), 
+                    omb.getDocumento(), 
+                    omb.getEs(), 
+                    omb.getFormaPagamento().getValor(), 
+                    omb.getSaldo(),
+                    (omb.getFormaPagamento().getStatus() != null) ? omb.getFormaPagamento().getStatus().getDescricao() : ""
+            ));
+        }
+        
+        jasper.start();
+        
+        HashMap<String, Object> map = new LinkedHashMap();
+        map.put("saldo", saldoFinal);
+        map.put("saldo_entrada", saldoEntradaBloqueado);
+        map.put("saldo_saida", saldoSaidaBloqueado);
+        map.put("saldo_disponivel", saldoDisponivel);
+        
+        jasper.setIS_HEADER(true);
+        jasper.add(jreport, map, list);
+        jasper.finish("Extrato de Movimentos");
     }
 
     public void estornaOmb(ObjectMovimentoBancario omb) {
@@ -245,7 +282,7 @@ public class MovimentoBancarioBean implements Serializable {
                 dao.rollback();
                 return;
             }
-            
+
             if (LOG_id_fp_estorna.isEmpty()) {
                 LOG_id_fp_estorna = "" + fp.getId();
                 LOG_tipo_fp_estorna = fp.getTipoPagamento().getDescricao();
@@ -386,12 +423,14 @@ public class MovimentoBancarioBean implements Serializable {
         esFiltro = "todos";
         tipoPagamentoFiltro = "todos";
         statusFiltro = "todos";
-
+        dataInicial = "";
+        dataFinal = "";
+        
         loadListaMovimento();
     }
 
     public Boolean temFiltro() {
-        return !esFiltro.equals("todos") || !tipoPagamentoFiltro.equals("todos") || !statusFiltro.equals("todos");
+        return !esFiltro.equals("todos") || !tipoPagamentoFiltro.equals("todos") || !statusFiltro.equals("todos") || !dataInicial.isEmpty() || !dataFinal.isEmpty();
     }
 
     public final void loadListaMovimento() {
@@ -416,7 +455,7 @@ public class MovimentoBancarioBean implements Serializable {
             return;
         }
 
-        List<Object> result = mdao.listaMovimentoBancario(plano.getId(), esFiltro, tipoPagamentoFiltro, statusFiltro);
+        List<Object> result = mdao.listaMovimentoBancario(plano.getId(), esFiltro, tipoPagamentoFiltro, statusFiltro, dataInicial, dataFinal);
 
         Boolean comeca_conta_saldo = true;
         if (!result.isEmpty()) {
@@ -1871,6 +1910,99 @@ public class MovimentoBancarioBean implements Serializable {
 
     public void setOmbSelecionado(ObjectMovimentoBancario ombSelecionado) {
         this.ombSelecionado = ombSelecionado;
+    }
+
+    public class ExtratoDeMovimentos {
+
+        private Object data;
+        private Object operacao;
+        private Object documento;
+        private Object es;
+        private Object valor;
+        private Object saldo;
+        private Object status;
+
+        public ExtratoDeMovimentos(Object data, Object operacao, Object documento, Object es, Object valor, Object saldo, Object status) {
+            this.data = data;
+            this.operacao = operacao;
+            this.documento = documento;
+            this.es = es;
+            this.valor = valor;
+            this.saldo = saldo;
+            this.status = status;
+        }
+
+        public Object getData() {
+            return data;
+        }
+
+        public void setData(Object data) {
+            this.data = data;
+        }
+
+        public Object getOperacao() {
+            return operacao;
+        }
+
+        public void setOperacao(Object operacao) {
+            this.operacao = operacao;
+        }
+
+        public Object getDocumento() {
+            return documento;
+        }
+
+        public void setDocumento(Object documento) {
+            this.documento = documento;
+        }
+
+        public Object getEs() {
+            return es;
+        }
+
+        public void setEs(Object es) {
+            this.es = es;
+        }
+
+        public Object getValor() {
+            return valor;
+        }
+
+        public void setValor(Object valor) {
+            this.valor = valor;
+        }
+
+        public Object getSaldo() {
+            return saldo;
+        }
+
+        public void setSaldo(Object saldo) {
+            this.saldo = saldo;
+        }
+
+        public Object getStatus() {
+            return status;
+        }
+
+        public void setStatus(Object status) {
+            this.status = status;
+        }
+    }
+
+    public String getDataInicial() {
+        return dataInicial;
+    }
+
+    public void setDataInicial(String dataInicial) {
+        this.dataInicial = dataInicial;
+    }
+
+    public String getDataFinal() {
+        return dataFinal;
+    }
+
+    public void setDataFinal(String dataFinal) {
+        this.dataFinal = dataFinal;
     }
 
 }

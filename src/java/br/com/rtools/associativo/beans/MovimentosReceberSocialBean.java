@@ -146,7 +146,7 @@ public class MovimentosReceberSocialBean implements Serializable {
     private SelecionaBoleto selecionaBoleto = new SelecionaBoleto();
 
     private Boolean imprimeVerso = false;
-    
+
     private Boolean chkMovimentosDoBoleto = false;
 
     @PostConstruct
@@ -164,12 +164,12 @@ public class MovimentosReceberSocialBean implements Serializable {
         GenericaSessao.remove("usuarioAutenticado");
     }
 
-    public void selMovimentosDoBoleto(){
-        for (LinhaMovimentoDoBoleto mb : listaMovimentoDoBoleto){
+    public void selMovimentosDoBoleto() {
+        for (LinhaMovimentoDoBoleto mb : listaMovimentoDoBoleto) {
             mb.setSelecionado(chkMovimentosDoBoleto);
         }
     }
-    
+
     public Boolean movimentosBaixado(Boleto b) {
         MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
         List<Movimento> l_movimento = db.listaMovimentosPorNrCtrBoleto(b.getNrCtrBoleto());
@@ -189,7 +189,7 @@ public class MovimentosReceberSocialBean implements Serializable {
         listaMovimentoDoBoleto.clear();
 
         chkMovimentosDoBoleto = false;
-        
+
         MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
         List<Movimento> l_movimento = db.listaMovimentosPorNrCtrBoleto(linhaBoletosAnexo.getBoleto().getNrCtrBoleto());
 
@@ -560,8 +560,49 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         List<Movimento> lm = new ArrayList();
 
-        for (ClassMovimentoAnexo cma : listaMovimentosAnexoSelecionados) {
-            lm.add(cma.getMovimento());
+        Boolean is_fisica = true;
+        if (pessoa.getJuridica() != null && pessoa.getJuridica().getId() != -1) {
+            is_fisica = false;
+        }
+
+        if (!is_fisica) {
+            // TODOS IGUAL AO RESPONSÁVEL
+            Boolean todos_igual_responsavel = true;
+            for (ClassMovimentoAnexo cma : listaMovimentosAnexoSelecionados) {
+                if (!is_fisica) {
+                    if (cma.getMovimento().getTitular().getId() != pessoa.getId()) {
+                        todos_igual_responsavel = false;
+                    }
+                }
+            }
+            // TODOS IGUAL AO FISICA
+            Boolean todos_igual_fisica = true;
+            for (ClassMovimentoAnexo cma : listaMovimentosAnexoSelecionados) {
+                if (!is_fisica) {
+                    if (cma.getMovimento().getTitular().getFisica() == null || cma.getMovimento().getTitular().getFisica().getId() == -1) {
+                        todos_igual_fisica = false;
+                    }
+                }
+            }
+
+            if (todos_igual_responsavel) {
+                for (ClassMovimentoAnexo cma : listaMovimentosAnexoSelecionados) {
+                    lm.add(cma.getMovimento());
+                }
+            } else if (todos_igual_fisica) {
+                for (ClassMovimentoAnexo cma : listaMovimentosAnexoSelecionados) {
+                    lm.add(cma.getMovimento());
+                }
+            }
+        } else {
+            for (ClassMovimentoAnexo cma : listaMovimentosAnexoSelecionados) {
+                lm.add(cma.getMovimento());
+            }
+        }
+
+        if (lm.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Não é permitido misturar movimentos ASSOCIATIVOS com os de outra natureza!");
+            return;
         }
 
         if (f.gerarBoletoSocial(lm, vencimentoNovoBoleto)) {

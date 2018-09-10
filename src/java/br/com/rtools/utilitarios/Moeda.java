@@ -60,7 +60,7 @@ public final class Moeda {
     public static String convertPercentToString(Double percent) {
         return convertPercentToString(percent, 2);
     }
-    
+
     public static String convertPercentToString(Double percent, Integer decimal) {
         return Moeda.substituiVirgula(Moeda.converteDoubleToString(percent, decimal));
     }
@@ -318,7 +318,7 @@ public final class Moeda {
                 BigDecimal bigDecimal = new BigDecimal(s);
                 return bigDecimal.setScale(decimal, BigDecimal.ROUND_HALF_EVEN).doubleValue();
             }
-            
+
             DecimalFormat df = new DecimalFormat();
             DecimalFormatSymbols dfs = new DecimalFormatSymbols();
 
@@ -328,6 +328,11 @@ public final class Moeda {
         } catch (Exception e) {
             return new BigDecimal(0).setScale(decimal, BigDecimal.ROUND_HALF_EVEN).doubleValue();
         }
+    }
+
+    public static Double converteDoubleToDouble(Double s, Integer decimal) {
+        BigDecimal bigDecimal = new BigDecimal(s);
+        return bigDecimal.setScale(decimal, BigDecimal.ROUND_HALF_EVEN).doubleValue();
     }
 
     // FIM NOVOS METODOS CLAUDEMIR --------------------------------------------------------------------

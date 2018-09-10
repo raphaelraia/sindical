@@ -348,9 +348,13 @@ public class ExtratoTelaBean implements Serializable {
 
             if (id_boleto_adicionado_remessa.isEmpty()) {
                 id_boleto_adicionado_remessa = "" + bo.getId();
-                ids_pesquisa = "" + bo.getId();
             } else {
                 id_boleto_adicionado_remessa += ", " + bo.getId();
+            }
+            
+            if (ids_pesquisa.isEmpty()) {
+                ids_pesquisa = "" + bo.getId();
+            } else {
                 ids_pesquisa += ", " + bo.getId();
             }
 
@@ -392,9 +396,13 @@ public class ExtratoTelaBean implements Serializable {
 
                 if (id_boleto_adicionado_remessa.isEmpty()) {
                     id_boleto_adicionado_remessa = "" + bo.getId();
-                    ids_pesquisa = "" + bo.getId();
                 } else {
                     id_boleto_adicionado_remessa += ", " + bo.getId();
+                }
+                
+                if (ids_pesquisa.isEmpty()) {
+                    ids_pesquisa = "" + bo.getId();
+                } else {
                     ids_pesquisa += ", " + bo.getId();
                 }
             }
@@ -420,9 +428,13 @@ public class ExtratoTelaBean implements Serializable {
 
                 if (id_boleto_adicionado_remessa.isEmpty()) {
                     id_boleto_adicionado_remessa = "" + bo.getId();
-                    ids_pesquisa = "" + bo.getId();
                 } else {
                     id_boleto_adicionado_remessa += ", " + bo.getId();
+                }
+                
+                if (ids_pesquisa.isEmpty()) {
+                    ids_pesquisa = "" + bo.getId();
+                } else {
                     ids_pesquisa += ", " + bo.getId();
                 }
             }
@@ -448,9 +460,13 @@ public class ExtratoTelaBean implements Serializable {
 
                 if (id_boleto_adicionado_remessa.isEmpty()) {
                     id_boleto_adicionado_remessa = "" + bo.getId();
-                    ids_pesquisa = "" + bo.getId();
                 } else {
                     id_boleto_adicionado_remessa += ", " + bo.getId();
+                }
+                
+                if (ids_pesquisa.isEmpty()) {
+                    ids_pesquisa = "" + bo.getId();
+                } else {
                     ids_pesquisa = ", " + bo.getId();
                 }
             }

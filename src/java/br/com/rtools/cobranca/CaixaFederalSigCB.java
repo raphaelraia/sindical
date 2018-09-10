@@ -36,15 +36,18 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPConnection;
 import javax.xml.soap.SOAPConnectionFactory;
+import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import sun.misc.BASE64Encoder;
 
 public class CaixaFederalSigCB extends Cobranca {
@@ -753,6 +756,9 @@ public class CaixaFederalSigCB extends Cobranca {
         VERIFICA SE ESTA SALVO NA LISTA :
         > "/opt/jdk1.8.0_51/jre/bin/keytool" -v -list -keystore "/opt/jdk1.8.0_51/jre/lib/security/cacerts" -alias CertificadoWebServiceCEF
                 
+        LINKS ÚTEIS
+        http://www.ebasso.net/wiki/index.php/Java:_Importando_Certificados_SSL_para_a_Java_Virtual_Machine_(JVM)
+        https://blogs.igalia.com/dpino/2011/10/13/configuring-different-jdks-with-alternatives/
         
         ATENÇÃO ----------------------------------------------------------------
         ATENÇÃO ----------------------------------------------------------------
@@ -890,11 +896,11 @@ public class CaixaFederalSigCB extends Cobranca {
             String requestQueueID = getString("MSG_RETORNO", rootElement);
 
             if (requestQueueID != null) {
+                System.out.println("CEF - WEBSERVICE-ERROR: " + requestQueueID);
                 return new RespostaWebService(null, requestQueueID);
             }
 
             requestQueueID = getString("RETORNO", rootElement);
-
             if (requestQueueID.equals("(38) NOSSO NUMERO JA CADASTRADO PARA O BENEFICIARIO") || requestQueueID.equals("(0) OPERACAO EFETUADA")) {
                 // BOLETO REGISTRADO
                 if (boleto.getDtCobrancaRegistrada() == null) {
@@ -908,10 +914,11 @@ public class CaixaFederalSigCB extends Cobranca {
                 }
                 return new RespostaWebService(boleto, "");
             } else {
+                System.out.println("CEF - WEBSERVICE-ERROR: " + requestQueueID);
                 return new RespostaWebService(null, requestQueueID);
             }
 
-        } catch (Exception e) {
+        } catch (IOException | UnsupportedOperationException | ParserConfigurationException | SOAPException | SAXException e) {
             System.out.println(e.getMessage());
         }
 

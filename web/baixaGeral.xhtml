@@ -125,7 +125,7 @@
 
                                             <p:commandButton icon="ui-icon-plus" title="Continuar e Inserir dados do Cheque" onclick="PF('i_dlg_cheque').show()" rendered="#{baixaGeralBean.tipoPagamento.id == 4 or baixaGeralBean.tipoPagamento.id == 5}"/>
 
-                                            <p:commandButton icon="ui-icon-plus" title="Continuar e Inserir dados do Cartão" onclick="PF('i_dlg_cartao').show()" rendered="#{baixaGeralBean.tipoPagamento.id == 6 or baixaGeralBean.tipoPagamento.id == 7}" action="#{baixaGeralBean.atualizaCartao()}" update="formBaixaGeral:i_cartao"/>
+                                            <p:commandButton icon="ui-icon-plus" title="Continuar e Inserir dados do Cartão" onclick="PF('i_dlg_cartao').show()" rendered="#{baixaGeralBean.tipoPagamento.id == 6 or baixaGeralBean.tipoPagamento.id == 7}" action="#{baixaGeralBean.atualizaCartao()}" update=":formBaixaGeral:i_cartao"/>
 
                                             <p:commandButton icon="ui-icon-plus" title="Continuar e Inserir dados do Banco" onclick="PF('i_dlg_banco').show()" rendered="#{baixaGeralBean.tipoPagamento.id == 2 or baixaGeralBean.tipoPagamento.id == 8 or baixaGeralBean.tipoPagamento.id == 9 or baixaGeralBean.tipoPagamento.id == 10 ||  baixaGeralBean.tipoPagamento.id == 13}" update="formBaixaGeral:i_banco"/>
                                         </p:column>
@@ -155,11 +155,11 @@
                                             <p:outputLabel value="TROCO" style="font-size: 16pt!important; font-weight: bold" /><br />
                                             <p:outputLabel value="R$ #{baixaGeralBean.valorTroco}" style="color: #5361fe; font-size: 18pt!important; font-weight: bold;" />
                                         </p:panel>
-                                        
+
                                         <p:panel style="width: 200px; height: 250px" rendered="#{baixaGeralBean.valorAcrescimo ne ''}">
                                             <p:outputLabel value="ACRÉSCIMO NOS CHEQUES" style="font-size: 18pt!important; font-weight: bold" /><br />
                                             <p:outputLabel value="R$ #{baixaGeralBean.valorAcrescimo}" style="color: red; font-size: 18pt!important; font-weight: bold;" /><br /><br />
-                                            
+
                                             <p:commandButton value="CONFIRMAR ACRÉSCIMO" icon="ui-icon-check" action="#{baixaGeralBean.confirmarAcrescimo()}" update="@form" rendered="#{!baixaGeralBean.confirmaAcrescimo}"/><br />
                                             <p:outputLabel value="NÃO CONFIRMADO" rendered="#{!baixaGeralBean.confirmaAcrescimo}" style="color: red"/>
                                             <p:outputLabel value="CONFIRMADO" rendered="#{baixaGeralBean.confirmaAcrescimo}" style="color: green"/>
@@ -183,7 +183,12 @@
                                 </p:column>
 
                                 <p:column headerText="Pagamento">
-                                    <h:outputText value="#{linha.tipoPagamento.descricao}"/>
+                                    <h:outputText value="#{linha.tipoPagamento.descricao} - #{linha.cartaoRec.cartao.descricao}" rendered="#{linha.tipoPagamento.id eq 6 or linha.tipoPagamento.id eq 7}"/>
+                                    <h:outputText value="#{linha.tipoPagamento.descricao}" rendered="#{linha.tipoPagamento.id ne 6 and linha.tipoPagamento.id ne 7}"/>
+                                </p:column>
+
+                                <p:column headerText="Parcelas" style="text-align: right; width: 80px">
+                                    <h:outputText value="#{linha.cartaoRec.parcela}"/>
                                 </p:column>
 
                                 <p:column headerText="Número do Documento" style="text-align: right">
@@ -193,7 +198,7 @@
                                 <p:column headerText="Quitação" style="text-align: center; width: 80px">
                                     <h:outputText value="#{linha.vencimento}"/>
                                 </p:column>
-                                
+
                                 <p:column headerText="Crédito" style="text-align: center; width: 80px">
                                     <h:outputText value="#{linha.dataCreditoCartaoString}"/>
                                 </p:column>
@@ -304,7 +309,7 @@
 
                             <p:dialog widgetVar="i_dlg_cartao" header="DADOS DO CARTÃO" resizable="false" width="550" modal="true" closeOnEscape="true">
                                 <h:panelGroup id="i_cartao" >
-                                    <h:panelGrid columns="2">
+                                    <h:panelGrid columns="3">
                                         <h:column rendered="#{not empty baixaGeralBean.listaCartao}">
                                             <p:outputLabel value="Bandeira" /><br />
                                             <p:selectOneMenu  value="#{baixaGeralBean.idCartao}">
@@ -313,12 +318,30 @@
                                             </p:selectOneMenu>
                                         </h:column>
 
-                                        <h:column rendered="#{baixaGeralBean.tipoPagamento.id == 6 and not empty baixaGeralBean.listaCartao} ">
+                                        <h:column rendered="#{baixaGeralBean.tipoPagamento.id eq 6 and not empty baixaGeralBean.listaCartao}">
+                                            <h:outputText value="Parcelas" /><br />
+                                            <p:selectOneMenu value="#{baixaGeralBean.parcelasCartao}" >
+                                                <p:ajax event="change" update="@this i_cartao" listener="#{baixaGeralBean.atualizaParcelasCartao()}"/>
+                                                <f:selectItem itemValue="1" itemLabel="1"/>
+                                                <f:selectItem itemValue="2" itemLabel="2"/>
+                                                <f:selectItem itemValue="3" itemLabel="3"/>
+                                                <f:selectItem itemValue="4" itemLabel="4"/>
+                                                <f:selectItem itemValue="5" itemLabel="5"/>
+                                                <f:selectItem itemValue="6" itemLabel="6"/>
+                                                <f:selectItem itemValue="7" itemLabel="7"/>
+                                                <f:selectItem itemValue="8" itemLabel="8"/>
+                                                <f:selectItem itemValue="9" itemLabel="9"/>
+                                                <f:selectItem itemValue="10" itemLabel="10"/>
+                                            </p:selectOneMenu>
+                                        </h:column>
+                                        
+                                        <h:column rendered="#{baixaGeralBean.tipoPagamento.id eq 6 and not empty baixaGeralBean.listaCartao}">
                                             <p:outputLabel value="Data de Crédito" /><br />
-                                            <p:inputMask value="#{baixaGeralBean.dataCreditoCartaoString}" mask="99/99/9999" style="width: 100px; text-align: center">
+                                            <p:inputMask value="#{baixaGeralBean.dataCreditoCartaoString}" mask="99/99/9999" style="width: 100px; text-align: center" disabled="#{baixaGeralBean.parcelasCartao gt 1}">
                                                 <p:ajax event="change" update="@this" />
                                             </p:inputMask>
                                         </h:column>
+
                                     </h:panelGrid>
                                 </h:panelGroup>
 

@@ -34,7 +34,7 @@
             <div id="mainx">
                 <!-- INICIA DIV wrap e main -->  
                 <f:subview id="header">
-                    <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templatePrime.xhtml"/>                      
                     <ui:include src="templates/templateStatus.xhtml"/>                    
                 </f:subview>
                 <f:view>
@@ -77,8 +77,8 @@
                                 </h:panelGrid>
                             </p:panel>
 
-                            <p:messages autoUpdate="true" closable="true" showDetail="true" />
-                            <p:growl autoUpdate="true" showDetail="true" />
+                            <p:messages closable="true" showDetail="true" />
+                            <p:growl showDetail="true" />
 
                             <h:panelGrid columns="2" id="id_panel" columnClasses="verticalAlignTop,verticalAlignTop" styleClass="margin-top-max" style="width: 100%!important">
                                 <h:column>
@@ -691,12 +691,10 @@
                             <h:panelGrid>
                                 <h:column>
                                     <h:panelGrid columns="3" cellspacing="5">
-                                        <p:commandLink action="#{relatorioSociosBean.print}" title="Imprimir Relatório" ajax="false">
-                                            <p:commandButton icon="ui-icon-print" value="Imprimir Relatório" title="Imprimir Relatório"/>
-                                        </p:commandLink>                                 
-                                        <p:commandLink action="#{relatorioSociosBean.export}" title="Exportar" ajax="false">
-                                            <p:commandButton icon="ui-icon-send" value="Exportar para reunião" title="Enviar para reunião"/>
-                                        </p:commandLink>
+                                        <p:commandButton icon="ui-icon-print" value="Imprimir Relatório" title="Imprimir Relatório" ajax="false" action="#{relatorioSociosBean.print}"/>
+
+                                        <p:commandButton icon="ui-icon-send" value="Exportar para reunião" title="Enviar para reunião" ajax="false" action="#{relatorioSociosBean.export}"/>
+
                                         <p:commandButton value="Abrir Email" update=":form_relatorio: :form_relatorio_email:" action="#{relatorioSociosBean.openSendMail}"/>
                                     </h:panelGrid>                                    
                                 </h:column>

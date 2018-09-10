@@ -426,7 +426,7 @@ public class ImprimirRecibo {
 
             // PESQUISA FORMA DE PAGAMENTO
             List<FormaPagamento> fp = db.pesquisaFormaPagamento(movimento.getBaixa().getId());
-            String formas[] = new String[10];
+            String formas[] = new String[15];
             double soma_dinheiro = 0, soma_outros = 0;
             for (int i = 0; i < fp.size(); i++) {
                 switch (fp.get(i).getTipoPagamento().getId()) {
@@ -439,6 +439,10 @@ public class ImprimirRecibo {
                         formas[i] = fp.get(i).getTipoPagamento().getDescricao() + ": R$ " + Moeda.converteR$Double(fp.get(i).getValor()) + " (B: " + fp.get(i).getChequeRec().getBanco().getNumero() + " Ag: " + fp.get(i).getChequeRec().getAgencia() + " C: " + fp.get(i).getChequeRec().getConta() + " CH: " + fp.get(i).getChequeRec().getCheque() + " P: " + fp.get(i).getChequeRec().getVencimento() + ")";
                         break;
                     // QUALQUER OUTRO    
+                    case 6:
+                    case 7:
+                        formas[i] = fp.get(i).getTipoPagamento().getDescricao() + " - " + fp.get(i).getCartaoRec().getCartao().getDescricao() + ((!fp.get(i).getDocumento().isEmpty()) ? " (N° " + fp.get(i).getDocumento() + ")" : "") + ": R$ " + Moeda.converteR$Double(fp.get(i).getValor());
+                        break;
                     default:
                         formas[i] = fp.get(i).getTipoPagamento().getDescricao() + ((!fp.get(i).getDocumento().isEmpty()) ? " (N° " + fp.get(i).getDocumento() + ")" : "") + ": R$ " + Moeda.converteR$Double(fp.get(i).getValor());
                         if (fp.get(i).getTipoPagamento().getId() == 3) {
@@ -530,6 +534,11 @@ public class ImprimirRecibo {
                                 formas[7],
                                 formas[8],
                                 formas[9],
+                                formas[10],
+                                formas[11],
+                                formas[12],
+                                formas[13],
+                                formas[14],
                                 (conveniada.isEmpty()) ? "" : "Empresa Conveniada: " + conveniada,
                                 lblVencimento,
                                 mensagemConvenio,

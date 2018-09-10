@@ -25,6 +25,7 @@ import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
@@ -67,17 +68,33 @@ public class LancamentoIndividualBean implements Serializable {
     private Lote lote = new Lote();
     private ServicoPessoa servicoPessoa = new ServicoPessoa();
     private Servicos servicos = new Servicos();
+    private Pessoa titular = new Pessoa();
 
     @PostConstruct
     public void init() {
         servicos = (Servicos) (new Dao().find(new Servicos(), Integer.parseInt(getListaServicos().get(idServico).getDescription())));
+        GenericaSessao.remove("tipoDePesquisa");
+    }
+
+    public String actPesquisar(String tipo) {
+        GenericaSessao.put("tipoDePesquisa", tipo);
+
+        switch (tipo) {
+            case "fisica":
+                return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).pesquisaPessoaFisica();
+            case "responsavel":
+                return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).pesquisaPessoa();
+            case "titular":
+                return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).pesquisaPessoaFisica();
+        }
+
+        return "";
     }
 
     public void salvarData() {
         if (servicoPessoa.getId() != -1) {
             if (!new Dao().update(servicoPessoa, true)) {
                 // ERRO
-
             } else {
 
             }
@@ -100,10 +117,10 @@ public class LancamentoIndividualBean implements Serializable {
             return;
         }
 
-        String vencto_ini = "";
         DataHoje dh = new DataHoje();
         listaMovimento.clear();
 
+        String vencto_ini;
         if (entrada.equals("sim")) {
             vencto_ini = DataHoje.data();
         } else {
@@ -113,7 +130,7 @@ public class LancamentoIndividualBean implements Serializable {
 
         int parcelas = idParcela;
 
-        FTipoDocumento td = new FTipoDocumento();
+        FTipoDocumento td;
         if (descontoFolha.equals("sim")) {
             td = (FTipoDocumento) dao.find(new FTipoDocumento(), 13);
         } else {
@@ -127,18 +144,11 @@ public class LancamentoIndividualBean implements Serializable {
         double valor = Moeda.converteDoubleR$Double(Moeda.divisao(totalpagar, parcelas));
 
         for (int i = 0; i < parcelas; i++) {
-            double valorswap = 0;
             //if ((Moeda.subtracao(totalpagar, valor) != 0) && ( (i+1) == parcelas)) {
             if ((i + 1) == parcelas) {
                 valor = totalpagar;
             } else {
                 totalpagar = Moeda.subtracao(totalpagar, valor);
-            }
-
-            Pessoa titular = responsavel;
-            Socios s = fisica.getPessoa().getSocios();
-            if (s.getId() != -1) {
-                titular = s.getMatriculaSocios().getTitular();
             }
 
             listaMovimento.add(new DataObject(
@@ -357,7 +367,16 @@ public class LancamentoIndividualBean implements Serializable {
     }
 
     public void pesquisaDescontoFolha() {
-        responsavel = new Pessoa();
+        if (descontoFolha.equals("sim")) {
+            Fisica fi = new FisicaDao().pesquisaFisicaPorPessoa(titular.getId());
+            if (fi.getPessoaEmpresa() != null) {
+                responsavel = fi.getPessoaEmpresa().getJuridica().getPessoa();
+            } else {
+                responsavel = new Pessoa();
+            }
+        } else {
+            responsavel = new Pessoa();
+        }
     }
 
     public void limpaEmpresaConvenio() {
@@ -415,30 +434,27 @@ public class LancamentoIndividualBean implements Serializable {
     }
 
     public Fisica getFisica() {
-        if (GenericaSessao.exists("fisicaPesquisa")) {
-            fisica = (Fisica) GenericaSessao.getObject("fisicaPesquisa");
+        if (GenericaSessao.exists("fisicaPesquisa") && (GenericaSessao.exists("tipoDePesquisa") && GenericaSessao.getString("tipoDePesquisa").equals("fisica"))) {
+            fisica = (Fisica) GenericaSessao.getObject("fisicaPesquisa", true);
 
             Socios s = fisica.getPessoa().getSocios();
             LancamentoIndividualDao dbl = new LancamentoIndividualDao();
             if (!dbl.listaSerasa(fisica.getPessoa().getId()).isEmpty()) {
                 GenericaMensagem.warn("PESSOA", fisica.getPessoa().getNome() + " contém o nome no Serasa!");
             }
+            
             if (s != null && s.getId() != -1) {
                 // PESSOA ASSOCIADA
                 retornaResponsavel(fisica.getPessoa().getId(), true);
             } else {
                 // PESSOA NÁO ASSOCIADA
-                retornaResponsavel(fisica.getPessoa().getId(), false);
+                // retornaResponsavel(fisica.getPessoa().getId(), false);
             }
 
-            PessoaDao db = new PessoaDao();
-            ServicoPessoaDao dbS = new ServicoPessoaDao();
-
-            servicoPessoa = dbS.pesquisaServicoPessoaPorPessoa(fisica.getPessoa().getId());
+            servicoPessoa = new ServicoPessoaDao().pesquisaServicoPessoaPorPessoa(fisica.getPessoa().getId());
             if (servicoPessoa == null) {
                 servicoPessoa = new ServicoPessoa();
             }
-            GenericaSessao.remove("fisicaPesquisa");
         }
         return fisica;
     }
@@ -450,8 +466,28 @@ public class LancamentoIndividualBean implements Serializable {
     public Pessoa retornaResponsavel(Integer id_pessoa, boolean associada) {
         Fisica fi = null;
         Juridica ju = null;
+
+        FisicaDao dbf = new FisicaDao();
+        JuridicaDao dbj = new JuridicaDao();
+
+        if (descontoFolha.equals("sim") && dbj.pesquisaJuridicaPorPessoa(id_pessoa) == null) {
+            GenericaMensagem.error("Atenção", "Apenas Pessoa Juridica para o Desconto em Folha");
+            return responsavel = new Pessoa();
+        }
+
         if (associada) {
             responsavel = new FunctionsDao().titularDaPessoa(id_pessoa);
+
+            // TITULAR
+            titular = responsavel;
+            Socios s = fisica.getPessoa().getSocios();
+            Socios s2 = responsavel.getSocios();
+
+            //SE BENFICIARIO FOR SÓCIO
+            if ((s != null && s.getId() != -1) && (s2 != null && s2.getId() != -1)) {
+                titular = s.getMatriculaSocios().getTitular();
+            }
+
         } else {
             if (GenericaSessao.exists("pessoaPesquisa")) {
                 responsavel = (Pessoa) GenericaSessao.getObject("pessoaPesquisa");
@@ -460,8 +496,6 @@ public class LancamentoIndividualBean implements Serializable {
             }
 
             // RESPONSAVEL FISICA
-            FisicaDao dbf = new FisicaDao();
-            JuridicaDao dbj = new JuridicaDao();
             fi = dbf.pesquisaFisicaPorPessoa(responsavel.getId());
             ju = null;
             if (fi != null) {
@@ -478,6 +512,8 @@ public class LancamentoIndividualBean implements Serializable {
                 // GenericaMensagem.warn("RESPONSÁVEL", "Pessoa Juridica não disponível no momento!");
                 // return responsavel = new Pessoa();
             }
+
+            titular = new Pessoa();
         }
 
         if (fi != null) {
@@ -497,6 +533,17 @@ public class LancamentoIndividualBean implements Serializable {
             if (!dbl.listaSerasa(responsavel.getId()).isEmpty()) {
                 GenericaMensagem.warn("PESSOA", responsavel.getNome() + " contém o nome no Serasa!");
             }
+        } else {
+            // TITULAR
+            titular = responsavel;
+            Socios s = fisica.getPessoa().getSocios();
+            Socios s2 = responsavel.getSocios();
+
+            //SE BENFICIARIO FOR SÓCIO
+            if ((s != null && s.getId() != -1) && (s2 != null && s2.getId() != -1)) {
+                titular = s.getMatriculaSocios().getTitular();
+            }
+
         }
 
         // ENDEREÇO OBRIGATÓRIO
@@ -521,17 +568,20 @@ public class LancamentoIndividualBean implements Serializable {
     }
 
     public Pessoa getResponsavel() {
-        if (GenericaSessao.exists("pessoaPesquisa")) {
-            Pessoa p = (Pessoa) GenericaSessao.getObject("pessoaPesquisa");
-            if (p.getJuridica() == null) {
-                Socios s = fisica.getPessoa().getSocios();
-                retornaResponsavel(fisica.getPessoa().getId(), (s != null && s.getId() != -1));
-                GenericaSessao.remove("pessoaPesquisa");
-            } else {
-                retornaResponsavel(p.getId(), false);
-                GenericaSessao.remove("pessoaPesquisa");
-
-            }
+        if (GenericaSessao.exists("pessoaPesquisa") && (GenericaSessao.exists("tipoDePesquisa") && GenericaSessao.getString("tipoDePesquisa").equals("responsavel"))) {
+            responsavel = (Pessoa) GenericaSessao.getObject("pessoaPesquisa", true);
+            titular = responsavel;
+            
+//            Pessoa p = (Pessoa) GenericaSessao.getObject("pessoaPesquisa");
+//            if (p.getJuridica() == null) {
+//                Socios s = fisica.getPessoa().getSocios();
+//                retornaResponsavel(fisica.getPessoa().getId(), (s != null && s.getId() != -1));
+//                GenericaSessao.remove("pessoaPesquisa");
+//            } else {
+//                retornaResponsavel(p.getId(), false);
+//                GenericaSessao.remove("pessoaPesquisa");
+//
+//            }
         }
         // NÃO APAGAR COMENTÁRIO
         /*
@@ -855,6 +905,17 @@ public class LancamentoIndividualBean implements Serializable {
 
     public void setServicos(Servicos servicos) {
         this.servicos = servicos;
+    }
+
+    public Pessoa getTitular() {
+        if (GenericaSessao.exists("fisicaPesquisa") && (GenericaSessao.exists("tipoDePesquisa") && GenericaSessao.getString("tipoDePesquisa").equals("titular"))) {
+            titular = ((Fisica) GenericaSessao.getObject("fisicaPesquisa", true)).getPessoa();
+        }
+        return titular;
+    }
+
+    public void setTitular(Pessoa titular) {
+        this.titular = titular;
     }
 
 }

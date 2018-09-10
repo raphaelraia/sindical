@@ -5,10 +5,8 @@
  */
 package br.com.rtools.financeiro.dao;
 
-import br.com.rtools.financeiro.CartaoRec;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import javax.persistence.Query;
 
