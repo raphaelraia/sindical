@@ -40,6 +40,8 @@ public class ConfiguracaoArrecadacao implements Serializable {
     private Boolean cobrancaEmail;
     @Column(name = "is_ignora_periodo_convencao_oposicao", columnDefinition = "boolean default false", nullable = false)
     private Boolean ignoraPeriodoConvencaoOposicao;
+    @Column(name = "is_comunicado_html", length = 8000)
+    private Boolean comunicadoHtml;
 
     public ConfiguracaoArrecadacao() {
         this.id = null;
@@ -52,9 +54,10 @@ public class ConfiguracaoArrecadacao implements Serializable {
         this.comunicado = "";
         this.cobrancaEmail = false;
         this.ignoraPeriodoConvencaoOposicao = false;
+        this.comunicadoHtml = false;
     }
 
-    public ConfiguracaoArrecadacao(Integer id, Filial filial, Boolean certificadoFaturementoBrutoAnual, Integer nrDiasAcordo, Boolean bloqueiaOposição, Boolean uploadCertificado, Boolean visualizaCertificadoRecusado, String comunicado, Boolean cobrancaEmail, Boolean ignoraPeriodoConvencaoOposicao) {
+    public ConfiguracaoArrecadacao(Integer id, Filial filial, Boolean certificadoFaturementoBrutoAnual, Integer nrDiasAcordo, Boolean bloqueiaOposição, Boolean uploadCertificado, Boolean visualizaCertificadoRecusado, String comunicado, Boolean cobrancaEmail, Boolean ignoraPeriodoConvencaoOposicao, Boolean comunicadoHtml) {
         this.id = id;
         this.filial = filial;
         this.certificadoFaturementoBrutoAnual = certificadoFaturementoBrutoAnual;
@@ -65,6 +68,7 @@ public class ConfiguracaoArrecadacao implements Serializable {
         this.comunicado = comunicado;
         this.cobrancaEmail = cobrancaEmail;
         this.ignoraPeriodoConvencaoOposicao = ignoraPeriodoConvencaoOposicao;
+        this.comunicadoHtml = comunicadoHtml;
     }
 
     public Integer getId() {
@@ -154,6 +158,14 @@ public class ConfiguracaoArrecadacao implements Serializable {
 
     public void setIgnoraPeriodoConvencaoOposicao(Boolean ignoraPeriodoConvencaoOposicao) {
         this.ignoraPeriodoConvencaoOposicao = ignoraPeriodoConvencaoOposicao;
+    }
+
+    public Boolean getComunicadoHtml() {
+        return comunicadoHtml;
+    }
+
+    public void setComunicadoHtml(Boolean comunicadoHtml) {
+        this.comunicadoHtml = comunicadoHtml;
     }
 
 }

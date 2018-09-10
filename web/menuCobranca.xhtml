@@ -47,6 +47,26 @@
                                     <p:menuitem value="Telemarketing" action="#{chamadaPaginaBean.pagina('relatorioTelemarketing', 'relatorioTelemarketingBean')}"/>
                                 </p:submenu>
                             </p:menubar>
+                            <p:panel style="margin: 0 auto!important; width: 99%" header="Acesso fácil">
+                                <p:panelGrid columns="4" styleClass="margin-top-max sbb" style="margin: 0 auto!important;" columnClasses="text-center,text-center,text-center,text-center">
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('pessoaFisica')}" title="Pessoa Física">
+                                        <p:graphicImage value="/Imagens/icon-person.png" height="70" />
+                                    </p:commandLink>
+                                     <p:commandLink action="#{chamadaPaginaBean.pagina('pessoaJuridica')}" ajax="false" title="Empresas">
+                                        <p:graphicImage value="/Imagens/icon-business.png" height="80" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('telemarketing')}" title="Telemarketing" ajax="false">
+                                        <p:graphicImage value="/Imagens/icon-telemarketing.png" height="70" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('movimentosReceberSocial')}" title="Movimentos a Receber" ajax="false">
+                                        <p:graphicImage value="/Imagens/icon-receiver.png" height="80" />
+                                    </p:commandLink>
+                                    <h:outputLabel value="Pessoa Física" />
+                                    <h:outputLabel value="Empresas" />
+                                    <h:outputLabel value="Telemarketing" />
+                                    <h:outputLabel value="Recebimentos" />
+                                </p:panelGrid>
+                            </p:panel>
                         </p:panel>
                     </h:form>
                 </f:view>

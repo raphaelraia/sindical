@@ -102,20 +102,22 @@
                                 </p:submenu>
                             </p:menubar>
                             <p:panel style="margin: 0 auto!important; width: 99%" header="Acesso fácil">
-                                <p:panelGrid columns="2" styleClass="margin-top-max sbb" style="margin: 0 auto!important;" columnClasses="text-center,text-center">
-                                    <p:commandLink action="#{chamadaPaginaBean.pessoaJuridica}" ajax="false" title="Empresas">
+                                <p:panelGrid columns="3" styleClass="margin-top-max sbb" style="margin: 0 auto!important;" columnClasses="text-center,text-center,text-center">
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('pessoaJuridica')}" ajax="false" title="Empresas">
                                         <p:graphicImage value="/Imagens/icon-business.png" height="80" />
                                     </p:commandLink>
-                                    <p:commandLink action="#{chamadaPaginaBean.movimentosReceber()}" title="Movimentos a Receber" ajax="false">
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('movimentosReceber')}" title="Movimentos a Receber" ajax="false">
                                         <p:graphicImage value="/Imagens/icon-receiver.png" height="80" />
+                                    </p:commandLink>
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('processamentoIndividual')}" title="Lançamento Individual" ajax="false">
+                                        <p:graphicImage value="/Imagens/icon-boleto.png" height="80" />
                                     </p:commandLink>
                                     <h:outputLabel value="Empresas" />
                                     <h:outputLabel value="Movimentos" />
+                                    <h:outputLabel value="Guia Individual" />
                                 </p:panelGrid>
                             </p:panel>                             
                         </p:panel>
-
-
                     </h:form>
                 </f:view>
                 <!-- FINALIZA div wrap main -->

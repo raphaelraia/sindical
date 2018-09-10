@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -29,6 +31,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
 import net.sf.jasperreports.engine.JRDataSource;
+import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRExporterParameter;
 import net.sf.jasperreports.engine.JRGroup;
@@ -1021,15 +1024,23 @@ public class Jasper implements Serializable {
      * @return
      */
     public static JasperReport load(String filename) {
-        try {
-            return (JasperReport) JRLoader.loadObject(new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/" + filename)));
-        } catch (Exception e1) {
+        File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + filename));
+        if (f.exists()) {
             try {
-                return (JasperReport) JRLoader.loadObject(new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + filename)));
-            } catch (Exception e2) {
-
+                return (JasperReport) JRLoader.loadObject(f);
+            } catch (JRException ex) {
+                Logger.getLogger(Jasper.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/" + filename));
+        if (f.exists()) {
+            try {
+                return (JasperReport) JRLoader.loadObject(f);
+            } catch (JRException ex) {
+                Logger.getLogger(Jasper.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
         return null;
     }
 

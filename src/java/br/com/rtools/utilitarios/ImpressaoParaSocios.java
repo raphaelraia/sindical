@@ -653,7 +653,8 @@ public class ImpressaoParaSocios {
                 }
 
             }
-
+            Jasper.IS_HEADER = true;
+            Jasper.TYPE = "default";
             Jasper.printReports("FICHA_SOCIAL", ljasper);
 
         } catch (JRException erro) {

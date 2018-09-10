@@ -73,13 +73,18 @@
                                     <h:column />
                                     <p:selectBooleanCheckbox value="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.ignoraPeriodoConvencaoOposicao}" itemLabel="Ignorar Oposição por Período de Oposição">
                                         <p:ajax event="change"  listener="#{configuracaoArrecadacaoBean.update()}" update="form_configuracao_arrecadacao"/>
-                                    </p:selectBooleanCheckbox>
-
+                                    </p:selectBooleanCheckbox>                                    
                                 </h:panelGrid>
                                 <p:panel styleClass="margin-top-max">
+                                    <f:facet name="header">
+                                        <p:selectBooleanCheckbox value="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.comunicadoHtml}" itemLabel="Comunicado HTML" disabled="true">
+                                            <p:ajax event="change"  listener="#{configuracaoArrecadacaoBean.update()}" update="form_configuracao_arrecadacao"/>
+                                        </p:selectBooleanCheckbox>                                        
+                                    </f:facet>
                                     <p:outputLabel value="Comunicado" style="font-weight: bold; font-size: 11pt!important"/>
                                     <h:panelGrid columns="1" style="width: 100%">
-                                        <p:inputTextarea value="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.comunicado}" style="width: 100%" maxlength="8000"/>
+                                        <p:inputTextarea value="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.comunicado}" style="width: 100%" maxlength="8000" rendered="#{!configuracaoArrecadacaoBean.configuracaoArrecadacao.comunicadoHtml}"/>
+                                        <p:editor controls="redo undo bold italic underline strikethrough highlight color link unlink alignleft alignright center justify font size" value="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.comunicado}" style="width: 100%!important;" height="400" rendered="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.comunicadoHtml}"/>
                                     </h:panelGrid>
                                 </p:panel>
                                 <f:facet name="footer">

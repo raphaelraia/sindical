@@ -189,19 +189,19 @@
                             </p:menubar> 
                             <p:panel style="margin: 0 auto!important; width: 99%">
                                 <p:panelGrid columns="5" styleClass="margin-top-max sbb" style="margin: 0 auto!important;" columnClasses="text-center,text-center,text-center,text-center,text-center">
-                                    <p:commandLink action="#{chamadaPaginaBean.pessoaFisica}" title="Pessoa Física">
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('pessoaFisica')}" title="Pessoa Física">
                                         <p:graphicImage value="/Imagens/icon-person.png" height="70" />
                                     </p:commandLink>                                                                        
-                                    <p:commandLink action="#{chamadaPaginaBean.movimentosReceberSocial()}" title="Movimentos a Receber" ajax="false">
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('movimentosReceberSocial')}" title="Movimentos a Receber" ajax="false">
                                         <p:graphicImage value="/Imagens/icon-receiver.png" height="80" />
                                     </p:commandLink>
                                     <p:commandLink action="#{chamadaPaginaBean.pagina('vendasCaravana')}" title="Vendas Caravana" ajax="false">
                                         <p:graphicImage value="/Imagens/icon-bus.png" height="80" />
                                     </p:commandLink>
-                                    <p:commandLink action="#{chamadaPaginaBean.conviteMovimento}" title="Convite Clube" ajax="false">
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('conviteMovimento')}" title="Convite Clube" ajax="false">
                                         <p:graphicImage value="/Imagens/icon-ticket.png" height="80" />
                                     </p:commandLink>
-                                    <p:commandLink action="#{chamadaPaginaBean.vendasBaile}" title="Vendas Baile" ajax="false">
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('vendasBaile')}" title="Vendas Baile" ajax="false">
                                         <p:graphicImage value="/Imagens/icon-party.png" height="80" />
                                     </p:commandLink>
                                     <h:outputLabel value="Pessoa Física" />
@@ -212,14 +212,14 @@
                                 </p:panelGrid>
                                 <h3 class="text-center">ATENDIMENTO SOCIAL</h3>
                                 <p:panelGrid columns="2" styleClass="margin-top-max sbb" style="margin: 0 auto!important;" columnClasses="text-center, text-center">
-                                    <p:commandLink action="#{chamadaPaginaBean.pagina('agendamentos')}" title="Agendamento" ajax="false" rendered="false">
-                                        <p:graphicImage value="" height="70" />
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('agendamentos')}" title="Agendamento" ajax="false">
+                                        <p:graphicImage value="/Imagens/icon-calendar.png" height="70" />
                                     </p:commandLink>
-                                    <p:commandLink action="#{chamadaPaginaBean.pagina('atendimentos')}" title="Atendimentos" ajax="false" rendered="false">
-                                        <p:graphicImage value="" height="70" />
+                                    <p:commandLink action="#{chamadaPaginaBean.pagina('atendimentos')}" title="Atendimentos" ajax="false">
+                                        <p:graphicImage value="/Imagens/icon-atendimento-salao.png" height="70" />
                                     </p:commandLink>
-                                    
-                                    
+                                    <h:outputLabel value="Agendamento"/>
+                                    <h:outputLabel value="Atendimento"/>
                                 </p:panelGrid>
                             </p:panel>
                             <p:panel styleClass="margin-top-max">

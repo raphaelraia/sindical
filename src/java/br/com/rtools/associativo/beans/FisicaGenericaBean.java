@@ -2,11 +2,15 @@ package br.com.rtools.associativo.beans;
 
 import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
+import br.com.rtools.associativo.ConfiguracaoSocial;
+import br.com.rtools.associativo.MatriculaCampeonato;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Fisica;
+import br.com.rtools.pessoa.PessoaComplemento;
+import br.com.rtools.pessoa.StatusCobranca;
 import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.seguranca.Registro;
@@ -21,6 +25,7 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.PF;
+import br.com.rtools.utilitarios.Sessions;
 import br.com.rtools.utilitarios.ValidaDocumentos;
 import java.io.File;
 import java.io.Serializable;
@@ -64,8 +69,8 @@ public class FisicaGenericaBean implements Serializable {
             return;
         }
         Boolean showMessage = true;
-        Rotina r = new Rotina().get();
-        if (r.getId() == 469) {
+        Rotina rotina = new Rotina().get();
+        if (rotina.getId() == 469) {
             // showMessage = false;
         }
         Dao dao = new Dao();
@@ -73,6 +78,28 @@ public class FisicaGenericaBean implements Serializable {
         fisica.getPessoa().setNome(fisica.getPessoa().getNome().trim());
 
         if (fisica.getId() == -1) {
+            Registro r = Registro.get();
+            ConfiguracaoSocial cs = ConfiguracaoSocial.get();
+
+            PessoaComplemento pessoaComplemento = new PessoaComplemento();
+
+            pessoaComplemento.setNrDiaVencimento(r.getFinDiaVencimentoCobranca());
+
+            if (pessoaComplemento.getPessoa().getEmail1().isEmpty()) {
+                pessoaComplemento.setStatusCobranca((StatusCobranca) new Dao().find(new StatusCobranca(), 1));
+            } else {
+                pessoaComplemento.setStatusCobranca(cs.getStatusCobranca());
+            }
+
+            if (rotina.getId() == 469) {
+                if (Sessions.exists("campeonatoEquipeBean")) {
+                    if (((CampeonatoEquipeBean) Sessions.getObject("campeonatoEquipeBean")).getCadastrarDependente().getServicoPessoa().getPessoa() != null) {
+                        pessoaComplemento.setResponsavel(((CampeonatoEquipeBean) Sessions.getObject("campeonatoEquipeBean")).getCadastrarDependente().getServicoPessoa().getPessoa());
+                    } else {
+                        pessoaComplemento.setResponsavel(null);
+                    }
+                }
+            }
             fisica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
             dao.openTransaction();
             if (!dao.save(fisica.getPessoa())) {
@@ -80,7 +107,12 @@ public class FisicaGenericaBean implements Serializable {
                 dao.rollback();
                 return;
             }
-
+            pessoaComplemento.setPessoa(fisica.getPessoa());
+            if (!dao.save(pessoaComplemento)) {
+                GenericaMensagem.error("Erro", "Erro ao salvar Pessoa Complemento!");
+                dao.rollback();
+                return;
+            }
             if (!dao.save(fisica)) {
                 GenericaMensagem.error("Erro", "Erro ao salvar Cadastro!");
                 dao.rollback();
@@ -131,10 +163,10 @@ public class FisicaGenericaBean implements Serializable {
         closeModal();
         PF.update("form_pessoa_fisica_generica");
         GenericaSessao.put("fisicaPesquisaGenerica", fisica);
-        if (r.getId() == 469) {
+        if (rotina.getId() == 469) {
             GenericaSessao.put("pesquisaFisicaTipo", "dependente");
             PF.update("form_campeonato_equipe");
-        } else if (r.getId() == 478) {
+        } else if (rotina.getId() == 478) {
             PF.update("form_person");
             PF.update("form_agendamentos");
         }
