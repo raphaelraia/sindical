@@ -110,4 +110,51 @@ public class FilialCidadeDao extends DB {
         }
         return null;
     }
+
+    public FilialCidade findByCidade(Integer cidade_id, Boolean principal) {
+        FilialCidade result = new FilialCidade();
+        Query query;
+        if (principal == null) {
+            query = getEntityManager().createQuery("SELECT FC FROM FilialCidade FC WHERE FC.cidade.id = :cidade_id");
+        } else if (principal) {
+            query = getEntityManager().createQuery("SELECT FC FROM FilialCidade FC WHERE FC.cidade.id = :cidade_id AND FC.principal = true");
+        } else {
+            query = getEntityManager().createQuery("SELECT FC FROM FilialCidade FC WHERE FC.cidade.id = :cidade_id AND FC.principal = false");
+        }
+        query.setParameter("cidade_id", cidade_id);
+        List list = query.getResultList();
+        if (!list.isEmpty() && list.size() == 1) {
+            return (FilialCidade) list.get(0);
+        }
+        return null;
+    }
+
+    public FilialCidade findByCidade(Integer cidade_id, Integer filial_id, Boolean principal) {
+        FilialCidade result = new FilialCidade();
+        Query query;
+        if (principal == null) {
+            query = getEntityManager().createQuery("SELECT FC FROM FilialCidade FC WHERE FC.cidade.id = :cidade_id AND FC.filial.id = :filial_id ");
+        } else if (principal) {
+            query = getEntityManager().createQuery("SELECT FC FROM FilialCidade FC WHERE FC.cidade.id = :cidade_id AND FC.filial.id = :filial_id AND FC.principal = true");
+        } else {
+            query = getEntityManager().createQuery("SELECT FC FROM FilialCidade FC WHERE FC.cidade.id = :cidade_id AND FC.filial.id = :filial_id AND FC.principal = false");
+        }
+        query.setParameter("cidade_id", cidade_id);
+        query.setParameter("filial_id", filial_id);
+        List list = query.getResultList();
+        if (!list.isEmpty() && list.size() == 1) {
+            return (FilialCidade) list.get(0);
+        }
+        return null;
+    }
+
+    public FilialCidade findByCidadePrincipal(Integer cidade_id) {
+        FilialCidade result = new FilialCidade();
+        Query query = getEntityManager().createQuery("SELECT FC FROM FilialCidade FC WHERE FC.cidade.id = :cidade_id AND FC.principal = true");
+        List list = query.getResultList();
+        if (!list.isEmpty() && list.size() == 1) {
+            return (FilialCidade) list.get(0);
+        }
+        return null;
+    }
 }

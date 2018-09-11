@@ -84,19 +84,19 @@
                             </h:panelGrid>   
 
                             <h:panelGrid style="float: left; margin-top: 15px; width: 100%" columns="1" id="i_panel">
-                                <p:dataTable value="#{filialBean.listCidadesAux}" var="filialCidade" id="tbl2">
+                                <p:dataTable value="#{filialBean.listFilialCidadeAux}" var="filialCidade" id="tbl2" paginator="true" rows="10">
 
                                     <p:column style="width:15px">  
                                         <p:rowToggler />  
                                     </p:column>                                     
 
-                                    <p:column headerText="Cidade/UF" width="250">
-                                        <h:outputText value="#{filialCidade.cidade.cidade}"/>
+                                    <p:column headerText="Cidades da Base" width="250">
+                                        <h:outputText value="#{filialCidade.cidade.cidade.toUpperCase()}"/>
                                     </p:column>
 
                                     <p:column headerText="Filial">
-                                        <p:selectOneMenu id="cbSelectFilial" value="#{filialCidade.index}" style="width: 95%">
-                                            <p:ajax event="change" listener="#{filialBean.saveCidadeFilial(filialCidade.cidade, filialCidade.index)}" update=":form_filial:"/>
+                                        <p:selectOneMenu id="cbSelectFilial" value="#{filialCidade.idFilial}" style="width: 95%">
+                                            <p:ajax event="change" listener="#{filialBean.saveFilialCidade(filialCidade.fc, filialCidade.cidade, filialCidade.idFilial)}" update="@this :form_filial:"/>
                                             <f:selectItems value="#{filialBean.listFilialSelectItem}" />
                                         </p:selectOneMenu>
                                     </p:column>
@@ -114,6 +114,9 @@
                                             </p:dataTable>                                            
                                         </p:panel>
                                     </p:rowExpansion>
+                                    <f:facet name="footer">
+                                        #{filialBean.listFilialCidadeAux.size()} cidade(s) base
+                                    </f:facet>
                                 </p:dataTable>                        
                             </h:panelGrid>
 
