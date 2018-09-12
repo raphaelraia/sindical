@@ -51,590 +51,592 @@
                                     <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'CADASTRO BLOQUEADO')}" escape="false" rendered="#{fisicaBean.pessoaComplemento.bloqueiaObsAviso}" />
                                     <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO', fisicaBean.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty fisicaBean.pessoaComplemento.obsAviso}" />
                                 </h:panelGroup>
-                                <p:tabView id="i_tabview_fisica" activeIndex="#{fisicaBean.indexPessoaFisica}" style="width: 100%">
-                                    <p:ajax event="tabChange" listener="#{fisicaBean.accordion}" update=":form_pessoa_fisica:i_end_rendered i_tabview_fisica"/> 
-                                    <p:tab title="Cadastro Pessoal">
-                                        <h:outputScript name="script_primefaces.js" library="js" />
-                                        <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'PESSOA CADASTRADA EM OPOSIÇÃO', '')}" escape="false" rendered="#{fisicaBean.pessoaOposicao}" />
-                                        <p:messages id="id_valida_documento" autoUpdate="true" showSummary="true" showDetail="true"  closable="true"/>
-                                        <h:panelGrid id="i_panel_dados" columns="2" style="height: 400px; width: 100%" columnClasses="verticalAlignTop, verticalAlignTop">
-                                            <p:column>
-                                                <p:panel styleClass="fundoCinza">
-                                                    <h:panelGrid columns="6">
-                                                        <p:column rendered="#{fisicaBean.fisica.id != -1}">
-                                                            <h:panelGrid>
-                                                                <p:outputLabel value="Código"/>
-                                                                <p:inputText size="5" value="#{fisicaBean.fisica.pessoa.id}" readonly="true" styleClass="font-color-red bold text-center font-size-12 bg-yellow-ligth" title="Código pessoa física n°#{fisicaBean.fisica.id}"/>
-                                                            </h:panelGrid>
-                                                        </p:column>
+                                <h:panelGroup layout="block" id="i_tabview_fisica">
+                                    <p:tabView activeIndex="#{fisicaBean.indexPessoaFisica}" style="width: 100%" prependId="false">
+                                        <p:ajax event="tabChange" listener="#{fisicaBean.accordion}" update=":form_pessoa_fisica:i_end_rendered :form_pessoa_fisica:i_tabview_fisica"/> 
+                                        <p:tab title="Cadastro Pessoal">
+                                            <h:outputScript name="script_primefaces.js" library="js" />
+                                            <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'PESSOA CADASTRADA EM OPOSIÇÃO', '')}" escape="false" rendered="#{fisicaBean.pessoaOposicao}" />
+                                            <p:messages id="id_valida_documento" showSummary="true" showDetail="true"  closable="true"/>
+                                            <h:panelGrid id="i_panel_dados" columns="2" style="height: 400px; width: 100%" columnClasses="verticalAlignTop, verticalAlignTop">
+                                                <p:column>
+                                                    <p:panel styleClass="fundoCinza">
+                                                        <h:panelGrid columns="6">
+                                                            <p:column rendered="#{fisicaBean.fisica.id != -1}">
+                                                                <h:panelGrid>
+                                                                    <p:outputLabel value="Código"/>
+                                                                    <p:inputText size="5" value="#{fisicaBean.fisica.pessoa.id}" readonly="true" styleClass="font-color-red bold text-center font-size-12 bg-yellow-ligth" title="Código pessoa física n°#{fisicaBean.fisica.id}"/>
+                                                                </h:panelGrid>
+                                                            </p:column>
 
-                                                        <p:column>
-                                                            <h:panelGrid>
-                                                                <p:outputLabel value="Cadastrado"/>
-                                                                <p:calendar size="8" value="#{fisicaBean.fisica.pessoa.dtCriacao}" pattern="dd/MM/yyyy" yearRange="c-1:c+1" mask="99/99/9999" locale="pt_BR">
-                                                                    <p:ajax event="dateSelect" listener="#{fisicaBean.fisica.pessoa.selecionaDataCriacao}" />
-                                                                </p:calendar>                                                                
-                                                            </h:panelGrid>
-                                                        </p:column>
+                                                            <p:column>
+                                                                <h:panelGrid>
+                                                                    <p:outputLabel value="Cadastrado"/>
+                                                                    <p:calendar size="8" value="#{fisicaBean.fisica.pessoa.dtCriacao}" pattern="dd/MM/yyyy" yearRange="c-1:c+1" mask="99/99/9999" locale="pt_BR">
+                                                                        <p:ajax event="dateSelect" listener="#{fisicaBean.fisica.pessoa.selecionaDataCriacao}" />
+                                                                    </p:calendar>                                                                
+                                                                </h:panelGrid>
+                                                            </p:column>
 
-                                                        <p:column>
-                                                            <h:panelGrid id="i_p_cpf">
-                                                                <p:outputLabel value="CPF" />
-                                                                <h:column>
-                                                                    <h:column rendered="#{fisicaBean.alteraCpf}">
-                                                                        <h:panelGrid columns="2">
-                                                                            <p:inputMask size="13" value="#{fisicaBean.fisica.pessoa.documento}" mask="999.999.999-99" styleClass="text-center font-size-10 #{(fisicaBean.fisica.id != -1 and not empty fisicaBean.fisica.pessoa.documento) ? 'bg-green-ligth' : 'bg-yellow-ligth' } bold">
-                                                                                <p:ajax event="blur" listener="#{fisicaBean.existePessoaDocumento}"  />
-                                                                            </p:inputMask>
-                                                                            <p:commandButton icon="ui-icon-search" rendered="#{fisicaBean.fisica.id eq -1}" />
-                                                                        </h:panelGrid>
+                                                            <p:column>
+                                                                <h:panelGrid id="i_p_cpf">
+                                                                    <p:outputLabel value="CPF" />
+                                                                    <h:column>
+                                                                        <h:column rendered="#{fisicaBean.alteraCpf}">
+                                                                            <h:panelGrid columns="2">
+                                                                                <p:inputMask size="13" value="#{fisicaBean.fisica.pessoa.documento}" mask="999.999.999-99" styleClass="text-center font-size-10 #{(fisicaBean.fisica.id != -1 and not empty fisicaBean.fisica.pessoa.documento) ? 'bg-green-ligth' : 'bg-yellow-ligth' } bold">
+                                                                                    <p:ajax event="blur" listener="#{fisicaBean.existePessoaDocumento}"  />
+                                                                                </p:inputMask>
+                                                                                <p:commandButton icon="ui-icon-search" rendered="#{fisicaBean.fisica.id eq -1}" />
+                                                                            </h:panelGrid>
+                                                                        </h:column>
+                                                                        <h:column rendered="#{!fisicaBean.alteraCpf}">
+                                                                            <h:panelGrid style="width: 100%" columns="2">
+                                                                                <p:inputText size="18" value="#{fisicaBean.fisica.pessoa.documento}" readonly="true" styleClass="text-center font-size-10 #{(fisicaBean.fisica.id != -1 and not empty fisicaBean.fisica.pessoa.documento) ? 'bg-green-ligth' : 'bg-yellow-ligth' } bold"/>
+                                                                                <p:commandButton icon="ui-icon-pencil" update=":form_pessoa_fisica:i_solicita_alteracao" global="true" actionListener="#{fisicaBean.openRequest('cpf')}" oncomplete="PF('dlg_solicita_alteracao').show()" styleClass="margin-left" title="Solicitar alteração" />
+                                                                            </h:panelGrid>
+                                                                        </h:column>                                                                    
                                                                     </h:column>
-                                                                    <h:column rendered="#{!fisicaBean.alteraCpf}">
-                                                                        <h:panelGrid style="width: 100%" columns="2">
-                                                                            <p:inputText size="18" value="#{fisicaBean.fisica.pessoa.documento}" readonly="true" styleClass="text-center font-size-10 #{(fisicaBean.fisica.id != -1 and not empty fisicaBean.fisica.pessoa.documento) ? 'bg-green-ligth' : 'bg-yellow-ligth' } bold"/>
-                                                                            <p:commandButton icon="ui-icon-pencil" update=":form_pessoa_fisica:i_solicita_alteracao" global="true" actionListener="#{fisicaBean.openRequest('cpf')}" oncomplete="PF('dlg_solicita_alteracao').show()" styleClass="margin-left" title="Solicitar alteração" />
-                                                                        </h:panelGrid>
-                                                                    </h:column>                                                                    
-                                                                </h:column>
-                                                            </h:panelGrid>                                                                    
+                                                                </h:panelGrid>                                                                    
+                                                            </p:column>
+
+                                                            <p:column>
+                                                                <h:panelGrid>
+                                                                    <p:outputLabel value="RG" />
+                                                                    <p:inputText size="10" maxlength="20" value="#{fisicaBean.fisica.rg}" styleClass="text-center">
+                                                                        <p:ajax event="change" update="@this" />
+                                                                    </p:inputText>                                                                
+                                                                </h:panelGrid>
+                                                            </p:column>
+
+                                                            <p:column>
+                                                                <h:panelGrid>
+                                                                    <p:outputLabel value="Nascimento" />
+                                                                    <p:calendar size="8" value="#{fisicaBean.fisica.dtNascimento}" pattern="dd/MM/yyyy" yearRange="c-120:c-0" navigator="true" mask="99/99/9999" converterMessage="Data de nascimento inválida - Formato 01/01/1900"  locale="pt_BR">
+                                                                        <p:ajax event="dateSelect" update="@this i_idade"  listener="#{fisicaBean.fisica.selecionaDataNascimento}" />
+                                                                        <p:ajax event="change" update="@this i_idade"  />
+                                                                    </p:calendar>                                                                
+                                                                </h:panelGrid>
+                                                            </p:column>
+
+                                                            <p:column>
+                                                                <br />
+                                                                <p:outputLabel id="i_idade" value="#{fisicaBean.fisica.idade}" style="font-weight: bold; font-size: 12pt!important"/>
+                                                            </p:column>
+                                                        </h:panelGrid>
+
+                                                        <h:panelGrid columns="1" style="width: 100%">
+                                                            <p:outputLabel value="Nome"/>
+                                                            <h:column>
+                                                                <p:inputText value="#{fisicaBean.fisica.pessoa.nome}" converter="#{toUpperCase}" style="width: 100%" styleClass="font-size-12 bg-yellow-ligth" rendered="#{fisicaBean.fisica.pessoa.id == -1}">
+                                                                    <p:ajax event="change" update="@this" listener="#{fisicaBean.existePessoaNomeNascimento()}" />
+                                                                </p:inputText>                                                            
+                                                            </h:column>
+                                                            <h:column>
+                                                                <h:panelGrid style="width: 100%" columns="2">
+                                                                    <p:inputText style="width: 100%" value="#{fisicaBean.fisica.pessoa.nome}" converter="#{toUpperCase}" title="Solicitar alteração #{fisicaBean.fisica.pessoa.id}" readonly="#{fisicaBean.fisica.pessoa.id != -1}" rendered="#{fisicaBean.fisica.pessoa.id != -1}" styleClass="bold" />
+                                                                    <p:commandButton icon="ui-icon-pencil" update=":form_pessoa_fisica:i_solicita_alteracao" global="true" actionListener="#{fisicaBean.openRequest('nome')}" oncomplete="PF('dlg_solicita_alteracao').show()" rendered="#{fisicaBean.fisica.pessoa.id != -1}" styleClass="margin-left" title="Solicitar alteração"/>
+                                                                </h:panelGrid>
+                                                            </h:column>                                                        
+                                                        </h:panelGrid>
+                                                    </p:panel>
+
+                                                    <h:panelGrid columns="4" style="margin-top: 10px">
+                                                        <p:column>
+                                                            <p:outputLabel value="Sexo"/><br />
+                                                            <p:selectOneRadio value="#{fisicaBean.fisica.sexo}" style="margin-right: 25px">
+                                                                <p:ajax event="change" update="@this i_panel_imagens"/>
+                                                                <f:selectItem itemValue="F" itemLabel="Feminino" />
+                                                                <f:selectItem itemValue="M" itemLabel="Masculino" />
+                                                            </p:selectOneRadio>
                                                         </p:column>
 
                                                         <p:column>
-                                                            <h:panelGrid>
-                                                                <p:outputLabel value="RG" />
-                                                                <p:inputText size="10" maxlength="20" value="#{fisicaBean.fisica.rg}" styleClass="text-center">
-                                                                    <p:ajax event="change" update="@this" />
-                                                                </p:inputText>                                                                
-                                                            </h:panelGrid>
+                                                            <p:outputLabel value="Estado Civil" /><br />
+                                                            <p:selectOneMenu value="#{fisicaBean.fisica.estadoCivil}" style="margin-right: 30px">
+                                                                <p:ajax event="change" update="@this"/>
+                                                                <f:selectItem itemValue="Amasiado(a)" itemLabel="Amasiado(a)"/>
+                                                                <f:selectItem itemValue="Casado(a)" itemLabel="Casado(a)"/>
+                                                                <f:selectItem itemValue="Desquitado(a)" itemLabel="Desquitado(a)"/>
+                                                                <f:selectItem itemValue="Divorciado(a)" itemLabel="Divorciado(a)"/>
+                                                                <f:selectItem itemValue="Indefinido" itemLabel="Indefinido" />
+                                                                <f:selectItem itemValue="Separado(a)" itemLabel="Separado(a)"/>
+                                                                <f:selectItem itemValue="Solteiro(a)" itemLabel="Solteiro(a)"/>
+                                                                <f:selectItem itemValue="Viuvo(a)" itemLabel="Viúvo(a)"/>
+                                                            </p:selectOneMenu>
                                                         </p:column>
 
                                                         <p:column>
-                                                            <h:panelGrid>
-                                                                <p:outputLabel value="Nascimento" />
-                                                                <p:calendar size="8" value="#{fisicaBean.fisica.dtNascimento}" pattern="dd/MM/yyyy" yearRange="c-120:c-0" navigator="true" mask="99/99/9999" converterMessage="Data de nascimento inválida - Formato 01/01/1900"  locale="pt_BR">
-                                                                    <p:ajax event="dateSelect" update="@this i_idade"  listener="#{fisicaBean.fisica.selecionaDataNascimento}" />
-                                                                    <p:ajax event="change" update="@this i_idade"  />
-                                                                </p:calendar>                                                                
-                                                            </h:panelGrid>
+                                                            <p:outputLabel value="Telefone" /><br />
+                                                            <p:inputMask mask="(99) 9999-9999" size="13" maxlength="10" value="#{fisicaBean.fisica.pessoa.telefone1}" style="margin-right: 30px">
+                                                                <p:ajax event="change" update="@this" />
+                                                            </p:inputMask>
+                                                        </p:column>
+
+                                                        <p:column>
+                                                            <p:outputLabel value="Telefone 2" /><br />
+                                                            <p:inputMask mask="(99) 9999-9999" size="13" maxlength="10" value="#{fisicaBean.fisica.pessoa.telefone2}" style="margin-right: 30px">
+                                                                <p:ajax event="change" update="@this" />
+                                                            </p:inputMask>
+                                                        </p:column>
+
+                                                        <p:column>
+                                                            <p:outputLabel value="Celular" /><br />
+                                                            <p:inputText size="14" maxlength="10" value="#{fisicaBean.fisica.pessoa.telefone3}" styleClass="ddd_telefone">
+                                                                <p:ajax event="change" update="@this" />
+                                                            </p:inputText>
+                                                        </p:column>
+
+                                                        <p:column>
+                                                            <p:outputLabel value="Celular 2"  /><br />
+                                                            <p:inputMask size="14" maxlength="10" value="#{fisicaBean.fisica.pessoa.telefone4}" mask="#{mask.getTelefone(fisicaBean.fisica.pessoa.telefone4)}">
+                                                                <p:ajax event="change" update="@this" />
+                                                            </p:inputMask>
+                                                        </p:column>
+                                                    </h:panelGrid>
+
+                                                    <h:panelGrid columns="2" columnClasses="duas-colunas" style="margin-top: 10px; width: 100%">
+                                                        <p:column>
+                                                            <p:outputLabel value="Nome do Pai"/><br />
+                                                            <p:inputText maxlength="100" value="#{fisicaBean.fisica.pai}" converter="#{toUpperCase}" style="width: 100%">
+                                                                <p:ajax event="blur" update="@this" />
+                                                            </p:inputText>
+                                                        </p:column>
+
+                                                        <p:column>
+                                                            <p:outputLabel value="Nome da Mãe"/><br />
+                                                            <p:inputText maxlength="100" value="#{fisicaBean.fisica.mae}" converter="#{toUpperCase}" style="width: 100%">
+                                                                <p:ajax event="blur" update="@this" />
+                                                            </p:inputText>
+                                                        </p:column>
+                                                    </h:panelGrid>
+
+
+                                                    <h:panelGrid columns="7" style="margin-top: 10px">
+                                                        <p:column>
+                                                            <p:outputLabel value="Órgão Emissor" title="Órgão emissor do RG"/><br />
+                                                            <p:inputText size="8" value="#{fisicaBean.fisica.orgaoEmissaoRG}" converter="#{removeNumberToUpperCase}" style="text-align: center; margin-right: 10px">
+                                                                <p:ajax event="blur" update="@this" />
+                                                            </p:inputText>
+                                                        </p:column>
+
+                                                        <p:column>
+                                                            <p:outputLabel value="UF Emissão" title="Emissão do RG" /><br />
+                                                            <p:inputText size="5" maxlength="2" value="#{fisicaBean.fisica.ufEmissaoRG}" converter="#{removeNumberToUpperCase}" style="text-align: center; margin-right: 10px">
+                                                                <p:ajax event="blur" update="@this" />
+                                                            </p:inputText>
+                                                        </p:column>
+
+                                                        <p:column>
+                                                            <p:outputLabel value="Carteira" /><br />
+                                                            <p:inputText size="8" maxlength="9" value="#{fisicaBean.fisica.carteira}" style="margin-right: 10px">
+                                                                <p:ajax event="blur" update="@this" />
+                                                            </p:inputText>
+                                                        </p:column>
+
+                                                        <p:column>
+                                                            <p:outputLabel value="Série" /><br />
+                                                            <p:inputText size="3" maxlength="15" value="#{fisicaBean.fisica.serie}" style="margin-right: 10px">
+                                                                <p:ajax event="blur" update="@this" />
+                                                            </p:inputText>
+                                                        </p:column>
+
+                                                        <p:column>
+                                                            <p:outputLabel value="Pis"/><br />
+                                                            <p:inputMask size="13" value="#{fisicaBean.fisica.pis}" mask="999.999.999-**"  style="margin-right: 12px"/>
+                                                        </p:column>
+
+                                                        <p:column>
+                                                            <p:outputLabel value="Atualização de Cadastro" /><br />
+                                                            <p:inputMask id="i_recadastro" size="8" value="#{fisicaBean.fisica.pessoa.recadastroString}" mask="99/99/9999" readonly="true">
+                                                                <p:ajax event="change" update="@this" />
+                                                            </p:inputMask>
+                                                            <p:commandButton icon="ui-icon-close" title="clique limpar" action="#{fisicaBean.clear(1)}" update="i_recadastro" styleClass="margin-left"/>
                                                         </p:column>
 
                                                         <p:column>
                                                             <br />
-                                                            <p:outputLabel id="i_idade" value="#{fisicaBean.fisica.idade}" style="font-weight: bold; font-size: 12pt!important"/>
+                                                            <p:commandButton icon="ui-icon-refresh" title="clique para data de hoje" onclick="PF('dlg_recadastro').show()" update=":form_pessoa_fisica:i_dlg_recadastro" action="#{fisicaBean.loadDataRecadastro}"/>
                                                         </p:column>
                                                     </h:panelGrid>
 
-                                                    <h:panelGrid columns="1" style="width: 100%">
-                                                        <p:outputLabel value="Nome"/>
-                                                        <h:column>
-                                                            <p:inputText value="#{fisicaBean.fisica.pessoa.nome}" converter="#{toUpperCase}" style="width: 100%" styleClass="font-size-12 bg-yellow-ligth" rendered="#{fisicaBean.fisica.pessoa.id == -1}">
-                                                                <p:ajax event="change" update="@this" listener="#{fisicaBean.existePessoaNomeNascimento()}" />
-                                                            </p:inputText>                                                            
-                                                        </h:column>
-                                                        <h:column>
-                                                            <h:panelGrid style="width: 100%" columns="2">
-                                                                <p:inputText style="width: 100%" value="#{fisicaBean.fisica.pessoa.nome}" converter="#{toUpperCase}" title="Solicitar alteração #{fisicaBean.fisica.pessoa.id}" readonly="#{fisicaBean.fisica.pessoa.id != -1}" rendered="#{fisicaBean.fisica.pessoa.id != -1}" styleClass="bold" />
-                                                                <p:commandButton icon="ui-icon-pencil" update=":form_pessoa_fisica:i_solicita_alteracao" global="true" actionListener="#{fisicaBean.openRequest('nome')}" oncomplete="PF('dlg_solicita_alteracao').show()" rendered="#{fisicaBean.fisica.pessoa.id != -1}" styleClass="margin-left" title="Solicitar alteração"/>
-                                                            </h:panelGrid>
-                                                        </h:column>                                                        
-                                                    </h:panelGrid>
-                                                </p:panel>
+                                                    <h:panelGrid columns="3" style="margin-top: 10px" id="i_p_n">
+                                                        <p:column>
+                                                            <p:outputLabel value="Nacionalidade"/><br />
+                                                            <p:selectOneMenu value="#{fisicaBean.pais}" style="width: 170px; margin-right: 10px">
+                                                                <p:ajax event="change" update="@this i_p_n" />
+                                                                <f:selectItems value="#{fisicaBean.listaPaises}"/>
+                                                            </p:selectOneMenu>
+                                                        </p:column>
 
-                                                <h:panelGrid columns="4" style="margin-top: 10px">
-                                                    <p:column>
-                                                        <p:outputLabel value="Sexo"/><br />
-                                                        <p:selectOneRadio value="#{fisicaBean.fisica.sexo}" style="margin-right: 25px">
-                                                            <p:ajax event="change" update="@this i_panel_imagens"/>
-                                                            <f:selectItem itemValue="F" itemLabel="Feminino" />
-                                                            <f:selectItem itemValue="M" itemLabel="Masculino" />
-                                                        </p:selectOneRadio>
-                                                    </p:column>
+                                                        <p:column>
+                                                            <p:outputLabel value="Naturalidade" /><br />                                                
+                                                            <p:commandButton  icon="ui-icon-search" value="#{fisicaBean.cidadeNaturalidade}" action="#{chamadaPaginaBean.cidade}" title="Pesquisar outra Naturalidade" disabled="#{fisicaBean.disabledNaturalidade}" style="margin-right: 10px"/>
+                                                            <!-- <p:inputText  readonly="# {fisicaBean.readyOnlineNaturalidade}" size="70" title="Digite sua naturalidade"/> -->
+                                                        </p:column>
 
-                                                    <p:column>
-                                                        <p:outputLabel value="Estado Civil" /><br />
-                                                        <p:selectOneMenu value="#{fisicaBean.fisica.estadoCivil}" style="margin-right: 30px">
-                                                            <p:ajax event="change" update="@this"/>
-                                                            <f:selectItem itemValue="Amasiado(a)" itemLabel="Amasiado(a)"/>
-                                                            <f:selectItem itemValue="Casado(a)" itemLabel="Casado(a)"/>
-                                                            <f:selectItem itemValue="Desquitado(a)" itemLabel="Desquitado(a)"/>
-                                                            <f:selectItem itemValue="Divorciado(a)" itemLabel="Divorciado(a)"/>
-                                                            <f:selectItem itemValue="Indefinido" itemLabel="Indefinido" />
-                                                            <f:selectItem itemValue="Separado(a)" itemLabel="Separado(a)"/>
-                                                            <f:selectItem itemValue="Solteiro(a)" itemLabel="Solteiro(a)"/>
-                                                            <f:selectItem itemValue="Viuvo(a)" itemLabel="Viúvo(a)"/>
-                                                        </p:selectOneMenu>
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <p:outputLabel value="Telefone" /><br />
-                                                        <p:inputMask mask="(99) 9999-9999" size="13" maxlength="10" value="#{fisicaBean.fisica.pessoa.telefone1}" style="margin-right: 30px">
-                                                            <p:ajax event="change" update="@this" />
-                                                        </p:inputMask>
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <p:outputLabel value="Telefone 2" /><br />
-                                                        <p:inputMask mask="(99) 9999-9999" size="13" maxlength="10" value="#{fisicaBean.fisica.pessoa.telefone2}" style="margin-right: 30px">
-                                                            <p:ajax event="change" update="@this" />
-                                                        </p:inputMask>
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <p:outputLabel value="Celular" /><br />
-                                                        <p:inputText size="14" maxlength="10" value="#{fisicaBean.fisica.pessoa.telefone3}" styleClass="ddd_telefone">
-                                                            <p:ajax event="change" update="@this" />
-                                                        </p:inputText>
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <p:outputLabel value="Celular 2"  /><br />
-                                                        <p:inputMask size="14" maxlength="10" value="#{fisicaBean.fisica.pessoa.telefone4}" mask="#{mask.getTelefone(fisicaBean.fisica.pessoa.telefone4)}">
-                                                            <p:ajax event="change" update="@this" />
-                                                        </p:inputMask>
-                                                    </p:column>
-                                                </h:panelGrid>
-
-                                                <h:panelGrid columns="2" columnClasses="duas-colunas" style="margin-top: 10px; width: 100%">
-                                                    <p:column>
-                                                        <p:outputLabel value="Nome do Pai"/><br />
-                                                        <p:inputText maxlength="100" value="#{fisicaBean.fisica.pai}" converter="#{toUpperCase}" style="width: 100%">
-                                                            <p:ajax event="blur" update="@this" />
-                                                        </p:inputText>
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <p:outputLabel value="Nome da Mãe"/><br />
-                                                        <p:inputText maxlength="100" value="#{fisicaBean.fisica.mae}" converter="#{toUpperCase}" style="width: 100%">
-                                                            <p:ajax event="blur" update="@this" />
-                                                        </p:inputText>
-                                                    </p:column>
-                                                </h:panelGrid>
-
-
-                                                <h:panelGrid columns="7" style="margin-top: 10px">
-                                                    <p:column>
-                                                        <p:outputLabel value="Órgão Emissor" title="Órgão emissor do RG"/><br />
-                                                        <p:inputText size="8" value="#{fisicaBean.fisica.orgaoEmissaoRG}" converter="#{removeNumberToUpperCase}" style="text-align: center; margin-right: 10px">
-                                                            <p:ajax event="blur" update="@this" />
-                                                        </p:inputText>
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <p:outputLabel value="UF Emissão" title="Emissão do RG" /><br />
-                                                        <p:inputText size="5" maxlength="2" value="#{fisicaBean.fisica.ufEmissaoRG}" converter="#{removeNumberToUpperCase}" style="text-align: center; margin-right: 10px">
-                                                            <p:ajax event="blur" update="@this" />
-                                                        </p:inputText>
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <p:outputLabel value="Carteira" /><br />
-                                                        <p:inputText size="8" maxlength="9" value="#{fisicaBean.fisica.carteira}" style="margin-right: 10px">
-                                                            <p:ajax event="blur" update="@this" />
-                                                        </p:inputText>
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <p:outputLabel value="Série" /><br />
-                                                        <p:inputText size="3" maxlength="15" value="#{fisicaBean.fisica.serie}" style="margin-right: 10px">
-                                                            <p:ajax event="blur" update="@this" />
-                                                        </p:inputText>
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <p:outputLabel value="Pis"/><br />
-                                                        <p:inputMask size="13" value="#{fisicaBean.fisica.pis}" mask="999.999.999-**"  style="margin-right: 12px"/>
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <p:outputLabel value="Atualização de Cadastro" /><br />
-                                                        <p:inputMask id="i_recadastro" size="8" value="#{fisicaBean.fisica.pessoa.recadastroString}" mask="99/99/9999" readonly="true">
-                                                            <p:ajax event="change" update="@this" />
-                                                        </p:inputMask>
-                                                        <p:commandButton icon="ui-icon-close" title="clique limpar" action="#{fisicaBean.clear(1)}" update="i_recadastro" styleClass="margin-left"/>
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <br />
-                                                        <p:commandButton icon="ui-icon-refresh" title="clique para data de hoje" onclick="PF('dlg_recadastro').show()" update=":form_pessoa_fisica:i_dlg_recadastro" action="#{fisicaBean.loadDataRecadastro}"/>
-                                                    </p:column>
-                                                </h:panelGrid>
-
-                                                <h:panelGrid columns="3" style="margin-top: 10px" id="i_p_n">
-                                                    <p:column>
-                                                        <p:outputLabel value="Nacionalidade"/><br />
-                                                        <p:selectOneMenu value="#{fisicaBean.pais}" style="width: 170px; margin-right: 10px">
-                                                            <p:ajax event="change" update="@this i_p_n" />
-                                                            <f:selectItems value="#{fisicaBean.listaPaises}"/>
-                                                        </p:selectOneMenu>
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <p:outputLabel value="Naturalidade" /><br />                                                
-                                                        <p:commandButton  icon="ui-icon-search" value="#{fisicaBean.cidadeNaturalidade}" action="#{chamadaPaginaBean.cidade}" title="Pesquisar outra Naturalidade" disabled="#{fisicaBean.disabledNaturalidade}" style="margin-right: 10px"/>
-                                                        <!-- <p:inputText  readonly="# {fisicaBean.readyOnlineNaturalidade}" size="70" title="Digite sua naturalidade"/> -->
-                                                    </p:column>
-
-                                                </h:panelGrid>
-
-                                                <h:panelGrid columns="2" style="margin-top: 10px; width: 100%">
-                                                    <p:column>
-                                                        <p:outputLabel value="E-Mail"/><br />
-                                                        <p:inputText label="Email" id="i_email" size="40" value="#{fisicaBean.fisica.pessoa.email1}" validatorMessage="Email inválido #{fisicaBean.fisica.pessoa.email1}" required="false" placeholder="Formato: meuemail@provedor.com" style="margin-right: 10px" converter="#{toLowerCase}">
-                                                            <p:ajax event="blur" update="i_message_email i_email" />
-                                                            <f:validateRegex pattern="[\w\.-]*[a-zA-Z0-9_]@[\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]" />
-                                                        </p:inputText>
-                                                        <p:message for="i_email" id="i_message_email" />
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <p:outputLabel value="Profissão"/><br />
-                                                        <p:selectOneMenu value="#{fisicaBean.idProfissao}" style="width: 300px" filter="true" filterMatchMode="startsWith" autoWidth="false">
-                                                            <p:ajax event="change" update="@this"/>
-                                                            <f:selectItems value="#{fisicaBean.listaProfissoes}"/>
-                                                        </p:selectOneMenu>
-                                                    </p:column>
-                                                </h:panelGrid>
-                                                <h:panelGrid columns="1" styleClass="margin-top-max">
-                                                    <p:outputLabel value="Ultima alteração: #{fisicaBean.fisica.pessoa.atualizacao}" rendered="#{fisicaBean.fisica.pessoa.id != -1}" />
-                                                    <p:commandLink update=":form_log_history:i_panel_history" oncomplete="PF('dlg_log_history').show()" title="Ver histórico de logs" action="#{logHistoryBean.load('pes_fisica', fisicaBean.fisica.id)}" rendered="#{fisicaBean.fisica.pessoa.id != -1}" value="Histórico de alterações" style="color: red;" disabled="#{fisicaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('historico_alteracao_logs', 4)}"/>
-                                                </h:panelGrid>
-                                            </p:column>
-
-                                            <p:column>
-                                                <p:panel header="Foto do Perfil" id="i_panel_imagens" style="width: 100%; height: 428px; text-align: center">
-                                                    <h:column rendered="#{not empty fisicaBean.fisica.pessoa.fotoResource}">
-                                                        <p:graphicImage name="#{fisicaBean.fisica.pessoa.fotoResource}" cache="false" style="max-width: 300px; max-height: 395px" />
-                                                        <div class="clear"></div>
-                                                    </h:column>
-                                                </p:panel>
-
-                                                <h:panelGrid columns="4">
-                                                    <p:commandButton icon="photocam" value="Capturar" action="pessoaFisica" actionListener="#{photoCapture.openAndSave(fisicaBean.fisica, 'form_pessoa_fisica')}" title="Capturar Foto" global="false" disabled="#{fisicaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('libera_camera', 1)}"/>
-                                                    <p:commandButton icon="ui-icon-arrowthick-1-n" value="Upload Foto" title="Enviar Foto" action="#{photoUpload.openAndSave(fisicaBean.fisica, 'form_pessoa_fisica')}" global="false" disabled="#{fisicaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('libera_upload', 1)}"/>
-                                                    <p:commandButton icon="ui-icon-scissors" value="Cortar Foto" title="Cortar Foto" action="#{photoCropper.openAndSave(fisicaBean.fisica, 'form_pessoa_fisica')}" global="false" disabled="#{fisicaBean.fisica.id == -1 or (fisicaBean.fisica.pessoa.fotoResource eq 'images/user_male.png' or fisicaBean.fisica.pessoa.fotoResource eq 'images/user_female.png')}"/>
-                                                    <p:commandButton icon="ui-icon-trash" title="Remover Foto" action="#{fisicaBean.apagarImagem()}" update="i_panel_imagens" disabled="#{fisicaBean.fisica.id == -1 or fisicaBean.fisica.foto == null or fisicaBean.fisica.foto eq ''}"/>
-                                                </h:panelGrid>
-                                            </p:column>
-                                        </h:panelGrid>
-
-
-                                        <h:column rendered="#{fisicaBean.fisica.id != -1}">
-                                            <p:panel style="margin-top: 10px" styleClass="fundoCinza">
-                                                <h:panelGrid columns="2" style="width: 100%">
-                                                    <p:column rendered="#{fisicaBean.tipoCadastro == 2 or fisicaBean.tipoCadastro == 3}">
-                                                        <p:outputLabel value="SÓCIO ( #{fisicaBean.tipoSocio} ) DESDE #{fisicaBean.socios.matriculaSocios.emissao}" style="font-weight: bold; font-size: 12pt!important"/>
-                                                    </p:column>
-
-                                                    <p:column rendered="#{fisicaBean.tipoCadastro == 4 or fisicaBean.tipoCadastro == 5}">
-                                                        <p:outputLabel value="SÓCIO ( #{fisicaBean.tipoSocio} INATIVO ) DESDE #{fisicaBean.inativoDesde}" style="font-weight: bold; font-size: 12pt!important; color: #ff9900"/>
-                                                    </p:column>
-
-                                                    <p:column rendered="#{fisicaBean.tipoCadastro == -1 or fisicaBean.tipoCadastro == 1}">
-                                                        <p:outputLabel value="ESTA PESSOA NÃO É ASSOCIADA" style="font-weight: bold; font-size: 12pt!important"/>
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <h:panelGrid columns="1" style="float: right;" styleClass="text-center">
-                                                            <p:column rendered="#{fisicaBean.tipoCadastro != 3}">
-                                                                <p:commandLink value="REATIVAÇÃO" onclick="PF('i_dlg_reativacao').show()" rendered="#{fisicaBean.listaSocioInativo.size() != 0}" styleClass="font-color-red bold" disabled="#{fisicaBean.editar}"/>
-                                                                <br />
-                                                                <br />
-                                                            </p:column>
-
-                                                            <p:column>
-                                                                <p:commandButton  title="Ver Cadastro / Associar" value="#{fisicaBean.lblSocio}" action="#{fisicaBean.associarFisica}" immediate="true" disabled="#{fisicaBean.editar}"/>
-                                                            </p:column>
-
-                                                        </h:panelGrid>
-                                                    </p:column>
-                                                </h:panelGrid>
-
-                                                <h:panelGrid rendered="#{fisicaBean.tipoCadastro == 2 or fisicaBean.tipoCadastro == 3 or fisicaBean.tipoCadastro == 4 or fisicaBean.tipoCadastro == 5}" columns="9" style="width: 60%">
-                                                    <p:column>
-                                                        <p:outputLabel value="Nº. Matrícula " style="font-size: 10pt!important"/>
-                                                        <p:outputLabel value="#{fisicaBean.socios.matriculaSocios.nrMatricula}" style="font-weight: bold; font-size: 10pt!important"/>
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <p:outputLabel value="Grupo Categoria " style="font-size: 10pt!important"/>
-                                                        <p:outputLabel value="#{fisicaBean.socios.matriculaSocios.categoria.grupoCategoria.grupoCategoria}" style="font-weight: bold; font-size: 10pt!important"/>
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <p:outputLabel value="Categoria " style="font-size: 10pt!important"/>
-                                                        <p:outputLabel value="#{fisicaBean.socios.matriculaSocios.categoria.categoria}" style="font-weight: bold; font-size: 10pt!important"/>
-                                                    </p:column>
-                                                </h:panelGrid>
-
-                                                <p:messages autoUpdate="true" showSummary="true" showDetail="true"  closable="true"/>
-
-                                                <p:dialog widgetVar="i_dlg_reativacao" header="Reativação" resizable="false" width="600" modal="true">
-                                                    <h:panelGroup layout="block">
-                                                        <p:dataTable value="#{fisicaBean.listaSocioInativo}" var="socios" rowIndexVar="index" emptyMessage="Clique para adicionar MAIS VENCIMENTO">
-                                                            <p:column width="15">  
-                                                                <p:rowToggler rendered="#{not empty socios.matriculaSocios.motivo}"/>  
-                                                            </p:column> 
-                                                            <p:column headerText="Data" width="80" styleClass="text-center">
-                                                                <p:commandLink ajax="false" value="#{socios.matriculaSocios.inativo}" action="#{fisicaBean.associarFisica(socios.servicoPessoa.pessoa, socios)}" disabled="#{socios.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK  (Alteração)"/>
-                                                            </p:column>
-                                                            <p:column headerText="Motivo">
-                                                                <p:commandLink ajax="false" value="#{socios.matriculaSocios.motivoInativacao.descricao}" action="#{fisicaBean.associarFisica(socios.servicoPessoa.pessoa, socios)}" disabled="#{socios.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK (Alteração)"/>
-                                                            </p:column>
-                                                            <p:rowExpansion>
-                                                                #{socios.matriculaSocios.motivo}
-                                                            </p:rowExpansion>
-                                                        </p:dataTable>
-                                                    </h:panelGroup>
-                                                    <br />
-                                                    <br />
-                                                    <h:outputLabel value="* Clique no item da lista para reativar" styleClass="font-color-red"  />
-                                                    <f:facet name="footer">
-                                                        <p:commandButton value="Sair" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_reativacao').hide()" icon="ui-icon-close"/>
-                                                    </f:facet>
-                                                </p:dialog>                                                
-                                            </p:panel>
-                                        </h:column>
-                                    </p:tab>
-
-                                    <p:tab title="Local de Trabalho" id="i_panel_profissao">
-                                        <h:column>
-                                            <p:messages id="msg_local_trabalho" autoUpdate="true" showSummary="true" showDetail="true" closable="true"/>
-                                            <p:panel header="#{fisicaBean.pessoaEmpresa.id eq -1 ? 'CADASTRAR' : ''} EMPREGO #{(fisicaBean.pessoaEmpresa.id ne -1 ) ? (fisicaBean.pessoaEmpresa.principal ? 'ATUAL (PRINCIPAL)' : 'ATUAL') : ''}">
-
-                                                <h:panelGrid columns="2" cellspacing="5">
-                                                    <h:column>
-                                                        <p:commandButton icon="ui-icon-search" title="Pesquisar Empresa" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}" immediate="true" id="i_pesquisar_empresa"/>
-                                                    </h:column>
-                                                    <h:column>
-                                                        <h:panelGrid columns="5" cellspacing="10">
-                                                            <p:outputLabel value="PESQUISAR EMPRESA " rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id == -1}" style="border-bottom: 1px dashed gray; color: gray;" for="i_pesquisar_empresa"/>
-                                                            <p:outputLabel value="CNPJ: #{fisicaBean.pessoaEmpresa.juridica.pessoa.documento} - #{fisicaBean.pessoaEmpresa.juridica.pessoa.nome}"  rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id != -1}" for="i_pesquisar_empresa"  style="font-weight: bold"/>
-                                                            <p:commandButton icon="ui-icon-trash" action="#{fisicaBean.removerJuridicaPesquisada}" rendered="#{fisicaBean.renderJuridicaPesquisa}" />
-                                                            <p:commandButton icon="ui-icon-contact" update=":form_pessoa_fisica:i_pessoa_juridica_card" action="#{pessoaCardBean.cardJuridica(fisicaBean.pessoaEmpresa.juridica.pessoa.id)}" oncomplete="PF('dlg_pessoa_juridica_card').show()" title="Ver detalhes" rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id != -1}"/>
-                                                            <h:commandLink action="#{juridicaBean.editar(fisicaBean.pessoaEmpresa.juridica, true)}" value="Alterar cadastro" rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id != -1}" actionListener="#{chamadaPaginaBean.backButton}" />
-                                                        </h:panelGrid>
-                                                    </h:column>
-                                                </h:panelGrid>
-                                                <h:panelGroup rendered="#{fisicaBean.pessoaEmpresa.juridica.id ne -1}">
-                                                    <h:panelGrid columns="2" cellspacing="10">
-                                                        <p:outputLabel value="NOME FANTASIA: " />
-                                                        <p:outputLabel value="#{fisicaBean.pessoaEmpresa.juridica.fantasia}" style="font-weight: bold" />
                                                     </h:panelGrid>
 
-                                                    <h:panelGrid columns="4" cellspacing="10">
-                                                        <h:column> 
-                                                            <h:panelGrid>
-                                                                <p:outputLabel value="DT. ADMISSÃO" />
-                                                                <p:inputMask size="10" value="#{fisicaBean.pessoaEmpresa.admissao}" mask="99/99/9999" styleClass="text-center" converter="#{isDateString}">
-                                                                    <p:ajax event="change" update="@this" global="false"/>
-                                                                </p:inputMask>
-                                                            </h:panelGrid>
-                                                        </h:column>
+                                                    <h:panelGrid columns="2" style="margin-top: 10px; width: 100%">
+                                                        <p:column>
+                                                            <p:outputLabel value="E-Mail"/><br />
+                                                            <p:inputText label="Email" id="i_email" size="40" value="#{fisicaBean.fisica.pessoa.email1}" validatorMessage="Email inválido #{fisicaBean.fisica.pessoa.email1}" required="false" placeholder="Formato: meuemail@provedor.com" style="margin-right: 10px" converter="#{toLowerCase}">
+                                                                <p:ajax event="blur" update="i_message_email i_email" />
+                                                                <f:validateRegex pattern="[\w\.-]*[a-zA-Z0-9_]@[\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]" />
+                                                            </p:inputText>
+                                                            <p:message for="i_email" id="i_message_email" />
+                                                        </p:column>
 
-                                                        <h:column>
-                                                            <h:panelGrid>
-                                                                <p:outputLabel value="DT. DEMISSÃO" />
-                                                                <p:inputMask size="10" value="#{fisicaBean.pessoaEmpresa.demissao}" mask="99/99/9999" styleClass="text-center" converter="#{isDateString}">
-                                                                    <p:ajax event="change" update="@this" />
-                                                                </p:inputMask>
-                                                            </h:panelGrid>
-                                                        </h:column>
-
-                                                        <h:column>
-                                                            <h:panelGrid>
-                                                                <p:outputLabel value="CÓDIGO" />
-                                                                <p:inputText size="10" value="#{fisicaBean.pessoaEmpresa.codigo}" styleClass="text-center">
-                                                                    <p:ajax event="change" update="@this" global="false"/>
-                                                                </p:inputText>
-                                                            </h:panelGrid>
-                                                        </h:column>
-
-                                                        <h:column>
-                                                            <h:panelGrid style="margin-left: 25px">
-                                                                <p:outputLabel value="REGISTRO" />
-                                                                <p:selectOneMenu value="#{fisicaBean.nrRegistro}" disabled="#{fisicaBean.pessoaEmpresa.id ne -1}">
-                                                                    <p:ajax event="change" update="@this"/>
-                                                                    <f:selectItems value="#{fisicaBean.listNrRegistro}" />
-                                                                </p:selectOneMenu>  
-                                                            </h:panelGrid>
-                                                        </h:column>
-                                                    </h:panelGrid>                                
-                                                    <h:panelGrid columns="5" cellspacing="10">
-
-
-                                                        <h:column rendered="#{fisicaBean.profissao.id ne -1}">
-                                                            <h:panelGroup id="idFuncao">                                                                
-                                                                <h:panelGrid columns="4" >
-                                                                    <p:inputText size="5" value="#{fisicaBean.profissao.cbo}"  readonly="true" placeholder="CBO"/>
-                                                                    <p:inputText size="40" value="#{fisicaBean.profissao.profissao}"  readonly="true" placeholder="Profissão"/>
-                                                                    <p:inputText size="20" value="#{fisicaBean.pessoaEmpresa.setor}"  placeholder="Setor"/>
-                                                                </h:panelGrid>
-                                                            </h:panelGroup>
-                                                        </h:column>
-
-                                                        <h:column rendered="#{fisicaBean.profissao.id ne -1}">
-
-                                                        </h:column>
-
-                                                        <h:column>
-                                                            <p:commandButton icon="#{fisicaBean.profissao.id eq -1 ? 'ui-icon-search' : 'ui-icon-transfer-e-w' }" value="#{fisicaBean.profissao.id eq -1 ? 'PESQUISAR FUNÇÃO' : 'ALTERAR FUNÇÃO'}" onclick="PF('dgl_painel_profissao').show();" />
-                                                        </h:column>
+                                                        <p:column>
+                                                            <p:outputLabel value="Profissão"/><br />
+                                                            <p:selectOneMenu value="#{fisicaBean.idProfissao}" style="width: 300px" filter="true" filterMatchMode="startsWith" autoWidth="false">
+                                                                <p:ajax event="change" update="@this"/>
+                                                                <f:selectItems value="#{fisicaBean.listaProfissoes}"/>
+                                                            </p:selectOneMenu>
+                                                        </p:column>
                                                     </h:panelGrid>
-                                                </h:panelGroup>
-                                                <f:facet name="footer">
-                                                    <h:panelGrid columns="2" rendered="#{fisicaBean.fisica.id != -1}">
-                                                        <p:commandButton value="#{fisicaBean.pessoaEmpresa.id == -1 ? 'Adicionar Empresa' : 'Atualizar'}" action="#{fisicaBean.adicionarEmpresa()}" update="i_tbl_empresa_b, :form_pessoa_fisica:" rendered="#{fisicaBean.pessoaEmpresa.juridica.id != -1}"/>
-                                                        <p:commandButton value="Nova" action="#{fisicaBean.novaEmpresa}" update="i_tbl_empresa_b, :form_pessoa_fisica:" rendered="#{fisicaBean.fisica.id != -1 and fisicaBean.pessoaEmpresa.id != -1 and fisicaBean.pessoaEmpresa.principal}"/>                                                            
+                                                    <h:panelGrid columns="1" styleClass="margin-top-max">
+                                                        <p:outputLabel value="Ultima alteração: #{fisicaBean.fisica.pessoa.atualizacao}" rendered="#{fisicaBean.fisica.pessoa.id != -1}" />
+                                                        <p:commandLink update=":form_log_history:i_panel_history" oncomplete="PF('dlg_log_history').show()" title="Ver histórico de logs" action="#{logHistoryBean.load('pes_fisica', fisicaBean.fisica.id)}" rendered="#{fisicaBean.fisica.pessoa.id != -1}" value="Histórico de alterações" style="color: red;" disabled="#{fisicaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('historico_alteracao_logs', 4)}"/>
                                                     </h:panelGrid>
-                                                </f:facet>
+                                                </p:column>
 
-                                            </p:panel>
-
-                                            <p:panel id="i_tbl_empresa" header="Outras Empresas" styleClass="margin-top-max" rendered="#{not empty fisicaBean.listaPessoaEmpresa}">
-                                                <p:dataTable id="i_tbl_empresa_b" var="pessoaEmpresa" value="#{fisicaBean.listaPessoaEmpresa}" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!" >
-                                                    <p:column width="30" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id eq 1}">
-                                                        <h:column rendered="#{!pessoaEmpresa.socio}">
-                                                            <p:commandButton icon="ui-icon-pencil" action="#{fisicaBean.editPessoaEmpresaEdit(pessoaEmpresa)}"  title="EDIÇÃO PARA ADMINISTRADOR"/>
+                                                <p:column>
+                                                    <p:panel header="Foto do Perfil" id="i_panel_imagens" style="width: 100%; height: 428px; text-align: center">
+                                                        <h:column rendered="#{not empty fisicaBean.fisica.pessoa.fotoResource}">
+                                                            <p:graphicImage name="#{fisicaBean.fisica.pessoa.fotoResource}" cache="false" style="max-width: 300px; max-height: 395px" />
+                                                            <div class="clear"></div>
                                                         </h:column>
-                                                    </p:column>
-                                                    <p:column headerText="Documento" style="width: 110px; text-align: center">
-                                                        <p:outputLabel value="#{pessoaEmpresa.juridica.pessoa.documento}"/>
-                                                    </p:column>
-                                                    <p:column headerText="Nome">
-                                                        <p:outputLabel value="#{pessoaEmpresa.juridica.pessoa.nome}" title="#{pessoaEmpresa.juridica.pessoa.nome}"/>
-                                                    </p:column>
-                                                    <p:column headerText="Setor" style="width: 110px; text-align: center">
-                                                        <p:outputLabel value="#{pessoaEmpresa.setor}"/>
-                                                    </p:column>
-                                                    <p:column headerText="Admissão" style="width: 80px; text-align: center">
-                                                        <p:outputLabel value="#{pessoaEmpresa.admissao}"/>
-                                                    </p:column>
-                                                    <p:column headerText="Demissão" style="width: 80px; text-align: center">
-                                                        <p:outputLabel value="#{pessoaEmpresa.demissao}"/>
-                                                    </p:column>
-                                                    <p:column headerText="CBO / Função">
-                                                        <p:outputLabel value="#{pessoaEmpresa.funcao.cbo} - #{pessoaEmpresa.funcao.profissao}" title="#{pessoaEmpresa.funcao.cbo} - #{pessoaEmpresa.funcao.profissao}"/>
-                                                    </p:column>
-                                                    <p:column styleClass="text-center">
-                                                        <p:outputLabel value="#{pessoaEmpresa.socio ? 'SÓCIO DA EMPRESA' : ''}" styleClass="bold font-color-red"/>
-                                                    </p:column>
-                                                    <p:column headerText="Nr. Registro" styleClass="text-center">
-                                                        <p:outputLabel value="#{pessoaEmpresa.nrRegistro}" styleClass="bold font-size-14"/>
-                                                    </p:column>
-                                                    <p:column width="30">
-                                                        <h:column rendered="#{!pessoaEmpresa.socio}">
-                                                            <p:commandButton icon="ui-icon-trash" action="#{fisicaBean.excluirEmpresaAnterior(pessoaEmpresa)}" update="i_tbl_empresa_b, :form_pessoa_fisica:"  title="Remover Difinitivamente essa Empresa"/>                                                            
-                                                        </h:column>
-                                                    </p:column>                                
-                                                    <p:column width="30">
-                                                        <h:column rendered="#{!pessoaEmpresa.socio}">
-                                                            <h:column rendered="#{pessoaEmpresa.dtDemissao == null}">
-                                                                <p:commandButton icon="ui-icon-arrowthick-2-e-w" action="#{fisicaBean.alterarEmpresaAtual(pessoaEmpresa)}" update="i_tbl_empresa_b, :form_pessoa_fisica:"  title="Alterar Empresa Atual" rendered="#{!pessoaEmpresa.principal}"/>
-                                                            </h:column>
-                                                        </h:column>
-                                                    </p:column>                                
-                                                    <p:column width="60" styleClass="text-center">
-                                                        <h:column rendered="#{pessoaEmpresa.principal}">
-                                                            Principal
-                                                        </h:column>
-                                                    </p:column>                                
-                                                </p:dataTable>
-                                            </p:panel>
-                                        </h:column>
-                                    </p:tab>
+                                                    </p:panel>
 
-                                    <p:tab title="Complemento" id="i_tab_complemento">
-                                        <p:messages id="id_message_complemento" autoUpdate="true" showSummary="true" showDetail="true" closable="true"/>
-                                        <h:panelGrid columns="1">
-                                            <p:column>
-                                                <p:outputLabel value="Observações"/><br />
-                                                <p:inputTextarea cols="112" rows="3" maxlength="1000" value="#{fisicaBean.fisica.pessoa.obs}" />
-                                            </p:column>
-                                        </h:panelGrid>
-
-                                        <h:panelGrid columns="1">
-                                            <p:column>
-                                                <p:outputLabel value="Site"/><br />
-                                                <p:inputText size="50" value="#{fisicaBean.fisica.pessoa.site}" />
-                                            </p:column>
-
-                                        </h:panelGrid>
-
-
-                                        <h:panelGrid columns="2">
-                                            <p:column>
-                                                <p:outputLabel value="E-Mail 2"/><br />
-                                                <p:inputText id="i_email_2" size="50" value="#{fisicaBean.fisica.pessoa.email2}" validatorMessage="Email inválido " required="false" placeholder="Formato: meuemail@provedor.com">
-                                                    <p:ajax event="blur" update=":form_pessoa_fisica:i_panel_pessoa_fisica" />
-                                                    <f:validateRegex pattern="[\w\.-]*[a-zA-Z0-9_]@[\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]" />
-                                                </p:inputText>        
-                                            </p:column>
-
-                                            <p:column>
-                                                <p:outputLabel value="E-Mail 3"/><br />
-                                                <p:inputText id="i_email_3" size="50" value="#{fisicaBean.fisica.pessoa.email3}" validatorMessage="Email inválido " required="false" placeholder="Formato: meuemail@provedor.com">
-                                                    <p:ajax event="blur" update=":form_pessoa_fisica:i_panel_pessoa_fisica" />
-                                                    <f:validateRegex pattern="[\w\.-]*[a-zA-Z0-9_]@[\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]" />
-                                                </p:inputText>  
-                                            </p:column>
-                                            <p:message for="i_email_2" />                                            
-                                            <p:message for="i_email_3" />
-                                        </h:panelGrid>
-
-
-
-                                        <h:panelGrid columns="2">
-                                            <p:column>
-                                                <p:outputLabel value="NIT"/><br />
-                                                <p:inputMask size="30" maxlength="11" value="#{fisicaBean.fisica.nit}" mask="999.99999.99-9" />
-                                            </p:column>
-
-                                            <p:column>
-                                                <p:outputLabel value="Data de Aposentadoria"/><br />
-                                                <p:inputMask value="#{fisicaBean.fisica.aposentadoria}" mask="99/99/9999" size="10" converter="#{isDateString}">
-                                                    <p:ajax event="change" update="@this" />
-                                                </p:inputMask>                                    
-                                            </p:column>
-                                        </h:panelGrid>
-
-                                        <h:panelGrid columns="3">
-                                            <p:column>
-                                                <p:outputLabel value="Título de Eleitor"/><br />
-                                                <p:inputText size="20" maxlength="20" value="#{fisicaBean.fisica.tituloEleitor}" />
-                                            </p:column>
-
-                                            <p:column>
-                                                <p:outputLabel value="Seção"/><br />
-                                                <p:inputText size="20" maxlength="20" value="#{fisicaBean.fisica.tituloSecao}" />
-                                            </p:column>
-
-                                            <p:column>
-                                                <p:outputLabel value="Zona"/><br />
-                                                <p:inputText size="20" maxlength="20" value="#{fisicaBean.fisica.tituloZona}" />
-                                            </p:column>
-                                        </h:panelGrid>
-
-                                        <h:panelGrid columns="3" cellspacing="5">
-                                            <p:selectBooleanCheckbox value="#{fisicaBean.habilitaMalaDireta}" itemLabel="Habilita Mala Direta" disabled="#{fisicaBean.fisica.id == -1}">
-                                                <p:ajax event="change" update="@this i_combo_complemento :form_pessoa_fisica:i_tabview_fisica:id_message_complemento" listener="#{fisicaBean.saveMalaDireta}"/>
-                                            </p:selectBooleanCheckbox>
-                                            <h:panelGrid id="i_combo_complemento">
-                                                <p:selectOneMenu value="#{fisicaBean.idMalaDiretaGrupo}" style="margin-right: 30px; padding-right: 20px" rendered="#{fisicaBean.habilitaMalaDireta}" >
-                                                    <p:ajax event="change" update="@this :form_pessoa_fisica:i_tabview_fisica:id_message_complemento" listener="#{fisicaBean.saveMalaDireta}"/>
-                                                    <f:selectItems value="#{fisicaBean.listMalaDiretaGrupo}" />
-                                                </p:selectOneMenu>                                            
+                                                    <h:panelGrid columns="4">
+                                                        <p:commandButton icon="photocam" value="Capturar" action="pessoaFisica" actionListener="#{photoCapture.openAndSave(fisicaBean.fisica, 'form_pessoa_fisica')}" title="Capturar Foto" global="false" disabled="#{fisicaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('libera_camera', 1)}"/>
+                                                        <p:commandButton icon="ui-icon-arrowthick-1-n" value="Upload Foto" title="Enviar Foto" action="#{photoUpload.openAndSave(fisicaBean.fisica, 'form_pessoa_fisica')}" global="false" disabled="#{fisicaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('libera_upload', 1)}"/>
+                                                        <p:commandButton icon="ui-icon-scissors" value="Cortar Foto" title="Cortar Foto" action="#{photoCropper.openAndSave(fisicaBean.fisica, 'form_pessoa_fisica')}" global="false" disabled="#{fisicaBean.fisica.id == -1 or (fisicaBean.fisica.pessoa.fotoResource eq 'images/user_male.png' or fisicaBean.fisica.pessoa.fotoResource eq 'images/user_female.png')}"/>
+                                                        <p:commandButton icon="ui-icon-trash" title="Remover Foto" action="#{fisicaBean.apagarImagem()}" update="i_panel_imagens" disabled="#{fisicaBean.fisica.id == -1 or fisicaBean.fisica.foto == null or fisicaBean.fisica.foto eq ''}"/>
+                                                    </h:panelGrid>
+                                                </p:column>
                                             </h:panelGrid>
-                                        </h:panelGrid>
 
-                                    </p:tab>
 
-                                    <p:tab id="idPessoaComplemento" title="Financeiro" >
-                                        <ui:include src="pessoaComplemento.xhtml" id="idPessoaComplementoX">  
-                                            <ui:param name="idPessoa" value="#{fisicaBean.fisica.pessoa.id}" />  
-                                        </ui:include>
-                                    </p:tab>
+                                            <h:column rendered="#{fisicaBean.fisica.id != -1}">
+                                                <p:panel style="margin-top: 10px" styleClass="fundoCinza">
+                                                    <h:panelGrid columns="2" style="width: 100%">
+                                                        <p:column rendered="#{fisicaBean.tipoCadastro == 2 or fisicaBean.tipoCadastro == 3}">
+                                                            <p:outputLabel value="SÓCIO ( #{fisicaBean.tipoSocio} ) DESDE #{fisicaBean.socios.matriculaSocios.emissao}" style="font-weight: bold; font-size: 12pt!important"/>
+                                                        </p:column>
 
-                                </p:tabView>
+                                                        <p:column rendered="#{fisicaBean.tipoCadastro == 4 or fisicaBean.tipoCadastro == 5}">
+                                                            <p:outputLabel value="SÓCIO ( #{fisicaBean.tipoSocio} INATIVO ) DESDE #{fisicaBean.inativoDesde}" style="font-weight: bold; font-size: 12pt!important; color: #ff9900"/>
+                                                        </p:column>
+
+                                                        <p:column rendered="#{fisicaBean.tipoCadastro == -1 or fisicaBean.tipoCadastro == 1}">
+                                                            <p:outputLabel value="ESTA PESSOA NÃO É ASSOCIADA" style="font-weight: bold; font-size: 12pt!important"/>
+                                                        </p:column>
+
+                                                        <p:column>
+                                                            <h:panelGrid columns="1" style="float: right;" styleClass="text-center">
+                                                                <p:column rendered="#{fisicaBean.tipoCadastro != 3}">
+                                                                    <p:commandLink value="REATIVAÇÃO" onclick="PF('i_dlg_reativacao').show()" rendered="#{fisicaBean.listaSocioInativo.size() != 0}" styleClass="font-color-red bold" disabled="#{fisicaBean.editar}"/>
+                                                                    <br />
+                                                                    <br />
+                                                                </p:column>
+
+                                                                <p:column>
+                                                                    <p:commandButton  title="Ver Cadastro / Associar" value="#{fisicaBean.lblSocio}" action="#{fisicaBean.associarFisica}" immediate="true" disabled="#{fisicaBean.editar}"/>
+                                                                </p:column>
+
+                                                            </h:panelGrid>
+                                                        </p:column>
+                                                    </h:panelGrid>
+
+                                                    <h:panelGrid rendered="#{fisicaBean.tipoCadastro == 2 or fisicaBean.tipoCadastro == 3 or fisicaBean.tipoCadastro == 4 or fisicaBean.tipoCadastro == 5}" columns="9" style="width: 60%">
+                                                        <p:column>
+                                                            <p:outputLabel value="Nº. Matrícula " style="font-size: 10pt!important"/>
+                                                            <p:outputLabel value="#{fisicaBean.socios.matriculaSocios.nrMatricula}" style="font-weight: bold; font-size: 10pt!important"/>
+                                                        </p:column>
+
+                                                        <p:column>
+                                                            <p:outputLabel value="Grupo Categoria " style="font-size: 10pt!important"/>
+                                                            <p:outputLabel value="#{fisicaBean.socios.matriculaSocios.categoria.grupoCategoria.grupoCategoria}" style="font-weight: bold; font-size: 10pt!important"/>
+                                                        </p:column>
+
+                                                        <p:column>
+                                                            <p:outputLabel value="Categoria " style="font-size: 10pt!important"/>
+                                                            <p:outputLabel value="#{fisicaBean.socios.matriculaSocios.categoria.categoria}" style="font-weight: bold; font-size: 10pt!important"/>
+                                                        </p:column>
+                                                    </h:panelGrid>
+
+                                                    <p:messages showSummary="true" showDetail="true"  closable="true"/>
+
+                                                    <p:dialog widgetVar="i_dlg_reativacao" header="Reativação" resizable="false" width="600" modal="true">
+                                                        <h:panelGroup layout="block">
+                                                            <p:dataTable value="#{fisicaBean.listaSocioInativo}" var="socios" rowIndexVar="index" emptyMessage="Clique para adicionar MAIS VENCIMENTO">
+                                                                <p:column width="15">  
+                                                                    <p:rowToggler rendered="#{not empty socios.matriculaSocios.motivo}"/>  
+                                                                </p:column> 
+                                                                <p:column headerText="Data" width="80" styleClass="text-center">
+                                                                    <p:commandLink ajax="false" value="#{socios.matriculaSocios.inativo}" action="#{fisicaBean.associarFisica(socios.servicoPessoa.pessoa, socios)}" disabled="#{socios.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK  (Alteração)"/>
+                                                                </p:column>
+                                                                <p:column headerText="Motivo">
+                                                                    <p:commandLink ajax="false" value="#{socios.matriculaSocios.motivoInativacao.descricao}" action="#{fisicaBean.associarFisica(socios.servicoPessoa.pessoa, socios)}" disabled="#{socios.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK (Alteração)"/>
+                                                                </p:column>
+                                                                <p:rowExpansion>
+                                                                    #{socios.matriculaSocios.motivo}
+                                                                </p:rowExpansion>
+                                                            </p:dataTable>
+                                                        </h:panelGroup>
+                                                        <br />
+                                                        <br />
+                                                        <h:outputLabel value="* Clique no item da lista para reativar" styleClass="font-color-red"  />
+                                                        <f:facet name="footer">
+                                                            <p:commandButton value="Sair" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_reativacao').hide()" icon="ui-icon-close"/>
+                                                        </f:facet>
+                                                    </p:dialog>                                                
+                                                </p:panel>
+                                            </h:column>
+                                        </p:tab>
+
+                                        <p:tab title="Local de Trabalho" id="i_panel_profissao">
+                                            <h:column>
+                                                <p:messages id="msg_local_trabalho" showSummary="true" showDetail="true" closable="true"/>
+                                                <p:panel header="#{fisicaBean.pessoaEmpresa.id eq -1 ? 'CADASTRAR' : ''} EMPREGO #{(fisicaBean.pessoaEmpresa.id ne -1 ) ? (fisicaBean.pessoaEmpresa.principal ? 'ATUAL (PRINCIPAL)' : 'ATUAL') : ''}">
+
+                                                    <h:panelGrid columns="2" cellspacing="5">
+                                                        <h:column>
+                                                            <p:commandButton icon="ui-icon-search" title="Pesquisar Empresa" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}" immediate="true" id="i_pesquisar_empresa"/>
+                                                        </h:column>
+                                                        <h:column>
+                                                            <h:panelGrid columns="5" cellspacing="10">
+                                                                <p:outputLabel value="PESQUISAR EMPRESA " rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id == -1}" style="border-bottom: 1px dashed gray; color: gray;" for="i_pesquisar_empresa"/>
+                                                                <p:outputLabel value="CNPJ: #{fisicaBean.pessoaEmpresa.juridica.pessoa.documento} - #{fisicaBean.pessoaEmpresa.juridica.pessoa.nome}"  rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id != -1}" for="i_pesquisar_empresa"  style="font-weight: bold"/>
+                                                                <p:commandButton icon="ui-icon-trash" action="#{fisicaBean.removerJuridicaPesquisada}" rendered="#{fisicaBean.renderJuridicaPesquisa}" />
+                                                                <p:commandButton icon="ui-icon-contact" update=":form_pessoa_fisica:i_pessoa_juridica_card" action="#{pessoaCardBean.cardJuridica(fisicaBean.pessoaEmpresa.juridica.pessoa.id)}" oncomplete="PF('dlg_pessoa_juridica_card').show()" title="Ver detalhes" rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id != -1}"/>
+                                                                <h:commandLink action="#{juridicaBean.editar(fisicaBean.pessoaEmpresa.juridica, true)}" value="Alterar cadastro" rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id != -1}" actionListener="#{chamadaPaginaBean.backButton}" />
+                                                            </h:panelGrid>
+                                                        </h:column>
+                                                    </h:panelGrid>
+                                                    <h:panelGroup rendered="#{fisicaBean.pessoaEmpresa.juridica.id ne -1}">
+                                                        <h:panelGrid columns="2" cellspacing="10">
+                                                            <p:outputLabel value="NOME FANTASIA: " />
+                                                            <p:outputLabel value="#{fisicaBean.pessoaEmpresa.juridica.fantasia}" style="font-weight: bold" />
+                                                        </h:panelGrid>
+
+                                                        <h:panelGrid columns="4" cellspacing="10">
+                                                            <h:column> 
+                                                                <h:panelGrid>
+                                                                    <p:outputLabel value="DT. ADMISSÃO" />
+                                                                    <p:inputMask size="10" value="#{fisicaBean.pessoaEmpresa.admissao}" mask="99/99/9999" styleClass="text-center" converter="#{isDateString}">
+                                                                        <p:ajax event="change" update="@this" global="false"/>
+                                                                    </p:inputMask>
+                                                                </h:panelGrid>
+                                                            </h:column>
+
+                                                            <h:column>
+                                                                <h:panelGrid>
+                                                                    <p:outputLabel value="DT. DEMISSÃO" />
+                                                                    <p:inputMask size="10" value="#{fisicaBean.pessoaEmpresa.demissao}" mask="99/99/9999" styleClass="text-center" converter="#{isDateString}">
+                                                                        <p:ajax event="change" update="@this" />
+                                                                    </p:inputMask>
+                                                                </h:panelGrid>
+                                                            </h:column>
+
+                                                            <h:column>
+                                                                <h:panelGrid>
+                                                                    <p:outputLabel value="CÓDIGO" />
+                                                                    <p:inputText size="10" value="#{fisicaBean.pessoaEmpresa.codigo}" styleClass="text-center">
+                                                                        <p:ajax event="change" update="@this" global="false"/>
+                                                                    </p:inputText>
+                                                                </h:panelGrid>
+                                                            </h:column>
+
+                                                            <h:column>
+                                                                <h:panelGrid style="margin-left: 25px">
+                                                                    <p:outputLabel value="REGISTRO" />
+                                                                    <p:selectOneMenu value="#{fisicaBean.nrRegistro}" disabled="#{fisicaBean.pessoaEmpresa.id ne -1}">
+                                                                        <p:ajax event="change" update="@this"/>
+                                                                        <f:selectItems value="#{fisicaBean.listNrRegistro}" />
+                                                                    </p:selectOneMenu>  
+                                                                </h:panelGrid>
+                                                            </h:column>
+                                                        </h:panelGrid>                                
+                                                        <h:panelGrid columns="5" cellspacing="10">
+
+
+                                                            <h:column rendered="#{fisicaBean.profissao.id ne -1}">
+                                                                <h:panelGroup id="idFuncao">                                                                
+                                                                    <h:panelGrid columns="4" >
+                                                                        <p:inputText size="5" value="#{fisicaBean.profissao.cbo}"  readonly="true" placeholder="CBO"/>
+                                                                        <p:inputText size="40" value="#{fisicaBean.profissao.profissao}"  readonly="true" placeholder="Profissão"/>
+                                                                        <p:inputText size="20" value="#{fisicaBean.pessoaEmpresa.setor}"  placeholder="Setor"/>
+                                                                    </h:panelGrid>
+                                                                </h:panelGroup>
+                                                            </h:column>
+
+                                                            <h:column rendered="#{fisicaBean.profissao.id ne -1}">
+
+                                                            </h:column>
+
+                                                            <h:column>
+                                                                <p:commandButton icon="#{fisicaBean.profissao.id eq -1 ? 'ui-icon-search' : 'ui-icon-transfer-e-w' }" value="#{fisicaBean.profissao.id eq -1 ? 'PESQUISAR FUNÇÃO' : 'ALTERAR FUNÇÃO'}" onclick="PF('dgl_painel_profissao').show();" />
+                                                            </h:column>
+                                                        </h:panelGrid>
+                                                    </h:panelGroup>
+                                                    <f:facet name="footer">
+                                                        <h:panelGrid columns="2" rendered="#{fisicaBean.fisica.id != -1}">
+                                                            <p:commandButton value="#{fisicaBean.pessoaEmpresa.id == -1 ? 'Adicionar Empresa' : 'Atualizar'}" action="#{fisicaBean.adicionarEmpresa()}" update="i_tbl_empresa_b, :form_pessoa_fisica:" rendered="#{fisicaBean.pessoaEmpresa.juridica.id != -1}"/>
+                                                            <p:commandButton value="Nova" action="#{fisicaBean.novaEmpresa}" update="i_tbl_empresa_b, :form_pessoa_fisica:" rendered="#{fisicaBean.fisica.id != -1 and fisicaBean.pessoaEmpresa.id != -1 and fisicaBean.pessoaEmpresa.principal}"/>                                                            
+                                                        </h:panelGrid>
+                                                    </f:facet>
+
+                                                </p:panel>
+
+                                                <p:panel id="i_tbl_empresa" header="Outras Empresas" styleClass="margin-top-max" rendered="#{not empty fisicaBean.listaPessoaEmpresa}">
+                                                    <p:dataTable id="i_tbl_empresa_b" var="pessoaEmpresa" value="#{fisicaBean.listaPessoaEmpresa}" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!" >
+                                                        <p:column width="30" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id eq 1}">
+                                                            <h:column rendered="#{!pessoaEmpresa.socio}">
+                                                                <p:commandButton icon="ui-icon-pencil" action="#{fisicaBean.editPessoaEmpresaEdit(pessoaEmpresa)}"  title="EDIÇÃO PARA ADMINISTRADOR"/>
+                                                            </h:column>
+                                                        </p:column>
+                                                        <p:column headerText="Documento" style="width: 110px; text-align: center">
+                                                            <p:outputLabel value="#{pessoaEmpresa.juridica.pessoa.documento}"/>
+                                                        </p:column>
+                                                        <p:column headerText="Nome">
+                                                            <p:outputLabel value="#{pessoaEmpresa.juridica.pessoa.nome}" title="#{pessoaEmpresa.juridica.pessoa.nome}"/>
+                                                        </p:column>
+                                                        <p:column headerText="Setor" style="width: 110px; text-align: center">
+                                                            <p:outputLabel value="#{pessoaEmpresa.setor}"/>
+                                                        </p:column>
+                                                        <p:column headerText="Admissão" style="width: 80px; text-align: center">
+                                                            <p:outputLabel value="#{pessoaEmpresa.admissao}"/>
+                                                        </p:column>
+                                                        <p:column headerText="Demissão" style="width: 80px; text-align: center">
+                                                            <p:outputLabel value="#{pessoaEmpresa.demissao}"/>
+                                                        </p:column>
+                                                        <p:column headerText="CBO / Função">
+                                                            <p:outputLabel value="#{pessoaEmpresa.funcao.cbo} - #{pessoaEmpresa.funcao.profissao}" title="#{pessoaEmpresa.funcao.cbo} - #{pessoaEmpresa.funcao.profissao}"/>
+                                                        </p:column>
+                                                        <p:column styleClass="text-center">
+                                                            <p:outputLabel value="#{pessoaEmpresa.socio ? 'SÓCIO DA EMPRESA' : ''}" styleClass="bold font-color-red"/>
+                                                        </p:column>
+                                                        <p:column headerText="Nr. Registro" styleClass="text-center">
+                                                            <p:outputLabel value="#{pessoaEmpresa.nrRegistro}" styleClass="bold font-size-14"/>
+                                                        </p:column>
+                                                        <p:column width="30">
+                                                            <h:column rendered="#{!pessoaEmpresa.socio}">
+                                                                <p:commandButton icon="ui-icon-trash" action="#{fisicaBean.excluirEmpresaAnterior(pessoaEmpresa)}" update="i_tbl_empresa_b, :form_pessoa_fisica:"  title="Remover Difinitivamente essa Empresa"/>                                                            
+                                                            </h:column>
+                                                        </p:column>                                
+                                                        <p:column width="30">
+                                                            <h:column rendered="#{!pessoaEmpresa.socio}">
+                                                                <h:column rendered="#{pessoaEmpresa.dtDemissao == null}">
+                                                                    <p:commandButton icon="ui-icon-arrowthick-2-e-w" action="#{fisicaBean.alterarEmpresaAtual(pessoaEmpresa)}" update="i_tbl_empresa_b, :form_pessoa_fisica:"  title="Alterar Empresa Atual" rendered="#{!pessoaEmpresa.principal}"/>
+                                                                </h:column>
+                                                            </h:column>
+                                                        </p:column>                                
+                                                        <p:column width="60" styleClass="text-center">
+                                                            <h:column rendered="#{pessoaEmpresa.principal}">
+                                                                Principal
+                                                            </h:column>
+                                                        </p:column>                                
+                                                    </p:dataTable>
+                                                </p:panel>
+                                            </h:column>
+                                        </p:tab>
+
+                                        <p:tab title="Complemento" id="i_tab_complemento">
+                                            <p:messages id="id_message_complemento" showSummary="true" showDetail="true" closable="true"/>
+                                            <h:panelGrid columns="1">
+                                                <p:column>
+                                                    <p:outputLabel value="Observações"/><br />
+                                                    <p:inputTextarea cols="112" rows="3" maxlength="1000" value="#{fisicaBean.fisica.pessoa.obs}" />
+                                                </p:column>
+                                            </h:panelGrid>
+
+                                            <h:panelGrid columns="1">
+                                                <p:column>
+                                                    <p:outputLabel value="Site"/><br />
+                                                    <p:inputText size="50" value="#{fisicaBean.fisica.pessoa.site}" />
+                                                </p:column>
+
+                                            </h:panelGrid>
+
+
+                                            <h:panelGrid columns="2">
+                                                <p:column>
+                                                    <p:outputLabel value="E-Mail 2"/><br />
+                                                    <p:inputText id="i_email_2" size="50" value="#{fisicaBean.fisica.pessoa.email2}" validatorMessage="Email inválido " required="false" placeholder="Formato: meuemail@provedor.com">
+                                                        <p:ajax event="blur" update=":form_pessoa_fisica:i_panel_pessoa_fisica" />
+                                                        <f:validateRegex pattern="[\w\.-]*[a-zA-Z0-9_]@[\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]" />
+                                                    </p:inputText>        
+                                                </p:column>
+
+                                                <p:column>
+                                                    <p:outputLabel value="E-Mail 3"/><br />
+                                                    <p:inputText id="i_email_3" size="50" value="#{fisicaBean.fisica.pessoa.email3}" validatorMessage="Email inválido " required="false" placeholder="Formato: meuemail@provedor.com">
+                                                        <p:ajax event="blur" update=":form_pessoa_fisica:i_panel_pessoa_fisica" />
+                                                        <f:validateRegex pattern="[\w\.-]*[a-zA-Z0-9_]@[\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]" />
+                                                    </p:inputText>  
+                                                </p:column>
+                                                <p:message for="i_email_2" />                                            
+                                                <p:message for="i_email_3" />
+                                            </h:panelGrid>
+
+
+
+                                            <h:panelGrid columns="2">
+                                                <p:column>
+                                                    <p:outputLabel value="NIT"/><br />
+                                                    <p:inputMask size="30" maxlength="11" value="#{fisicaBean.fisica.nit}" mask="999.99999.99-9" />
+                                                </p:column>
+
+                                                <p:column>
+                                                    <p:outputLabel value="Data de Aposentadoria"/><br />
+                                                    <p:inputMask value="#{fisicaBean.fisica.aposentadoria}" mask="99/99/9999" size="10" converter="#{isDateString}">
+                                                        <p:ajax event="change" update="@this" />
+                                                    </p:inputMask>                                    
+                                                </p:column>
+                                            </h:panelGrid>
+
+                                            <h:panelGrid columns="3">
+                                                <p:column>
+                                                    <p:outputLabel value="Título de Eleitor"/><br />
+                                                    <p:inputText size="20" maxlength="20" value="#{fisicaBean.fisica.tituloEleitor}" />
+                                                </p:column>
+
+                                                <p:column>
+                                                    <p:outputLabel value="Seção"/><br />
+                                                    <p:inputText size="20" maxlength="20" value="#{fisicaBean.fisica.tituloSecao}" />
+                                                </p:column>
+
+                                                <p:column>
+                                                    <p:outputLabel value="Zona"/><br />
+                                                    <p:inputText size="20" maxlength="20" value="#{fisicaBean.fisica.tituloZona}" />
+                                                </p:column>
+                                            </h:panelGrid>
+
+                                            <h:panelGrid columns="3" cellspacing="5">
+                                                <p:selectBooleanCheckbox value="#{fisicaBean.habilitaMalaDireta}" itemLabel="Habilita Mala Direta" disabled="#{fisicaBean.fisica.id == -1}">
+                                                    <p:ajax event="change" update="@this i_combo_complemento :form_pessoa_fisica:id_message_complemento" listener="#{fisicaBean.saveMalaDireta}"/>
+                                                </p:selectBooleanCheckbox>
+                                                <h:panelGrid id="i_combo_complemento">
+                                                    <p:selectOneMenu value="#{fisicaBean.idMalaDiretaGrupo}" style="margin-right: 30px; padding-right: 20px" rendered="#{fisicaBean.habilitaMalaDireta}" >
+                                                        <p:ajax event="change" update="@this :form_pessoa_fisica:id_message_complemento" listener="#{fisicaBean.saveMalaDireta}"/>
+                                                        <f:selectItems value="#{fisicaBean.listMalaDiretaGrupo}" />
+                                                    </p:selectOneMenu>                                            
+                                                </h:panelGrid>
+                                            </h:panelGrid>
+
+                                        </p:tab>
+
+                                        <p:tab id="idPessoaComplemento" title="Financeiro" >
+                                            <ui:include src="pessoaComplemento.xhtml" id="idPessoaComplementoX">  
+                                                <ui:param name="idPessoa" value="#{fisicaBean.fisica.pessoa.id}" />  
+                                            </ui:include>
+                                        </p:tab>
+
+                                    </p:tabView>
+                                </h:panelGroup>
 
                                 <!-- ENDEREÇO -->
                                 <h:panelGrid id="i_end_rendered">
@@ -826,7 +828,7 @@
                                 <p:dialog modal="true" width="650" height="400" widgetVar="dlg_pessoa_empresa" closable="true" header="Alterar Empresa" visible="#{fisicaBean.pessoaEmpresaEdit.id ne -1}">
                                     <p:ajax event="close" listener="#{fisicaBean.closePessoaEmpresa}" update=":form_pessoa_fisica:" />
                                     <h:panelGrid id="i_painel_pe_edit">
-                                        <p:messages id="i_msg_pe" autoUpdate="true" showSummary="true" showDetail="true" closable="true"/>
+                                        <p:messages id="i_msg_pe" showSummary="true" showDetail="true" closable="true"/>
                                         <h:panelGrid columns="2">
                                             <h:column>
                                                 <p:commandButton icon="ui-icon-search" title="Pesquisar Empresa" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}" immediate="true" actionListener="#{genericaSessao.putString('tipoPessoaJuridica', 'juridicaPesquisaEdit')}"/>
@@ -921,7 +923,7 @@
                                 </p:dialog>
                                 <p:dialog widgetVar="dlg_painel_mensagem" modal="true" header="Mensagem"  width="400" resizable="false">
                                     <h:panelGrid id="i_painel_mensagem">
-                                        <p:messages autoUpdate="true" showSummary="true" showDetail="true" closable="true" />
+                                        <p:messages showSummary="true" showDetail="true" closable="true" />
                                         <p:outputLabel value="#{fisicaBean.mensagem}"/>                                        
                                     </h:panelGrid>
                                     <br /><br />
@@ -952,7 +954,7 @@
                                 <p:ajax event="close" listener="#{fisicaBean.clear(2)}" />
                                 <h:panelGrid id="i_dlg_recadastro">
                                     <p:calendar value="#{fisicaBean.dtRecadastro}" pattern="dd/MM/yyyy" mask="99/99/9999" locale="pt_BR">
-                                        <p:ajax event="dateSelect" update=":form_pessoa_fisica:i_tabview_fisica:i_recadastro"/>
+                                        <p:ajax event="dateSelect" update=":form_pessoa_fisica:i_recadastro"/>
                                     </p:calendar>
                                 </h:panelGrid>
                                 <f:facet name="footer">
@@ -1042,7 +1044,7 @@
                             <p:dialog widgetVar="dlg_solicita_alteracao" modal="true" resizable="false" height="200" width="600" header="Solicitação de alteração" closeOnEscape="true">
                                 <p:ajax event="close" update=":form_pessoa_fisica:"/>
                                 <h:panelGroup id="i_solicita_alteracao">
-                                    <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
+                                    <p:messages showDetail="true" showSummary="true" />
                                     <h:panelGrid style="width: 100%" >
                                         <p:outputLabel value="Alterar para:" />
                                         <p:inputMask value="#{fisicaBean.sisAutorizacoes.dadosAlterados}" mask="#{fisicaBean.mascaraAlteracao}" style="width: 100%" >
@@ -1118,7 +1120,7 @@
                         <p:dialog widgetVar="dlg_waiting_biometria_erro" modal="true" resizable="false" header="Mensagem Sistema" closable="true" visible="#{biometriaBean.open_modal_cancel}">
                             <p:ajax event="close" update=":form_aplicativos:" listener="#{biometriaBean.closeModalApp()}"/>
                             <h:panelGrid id="i_message_err_x">
-                                <p:messages autoUpdate="true" showSummary="true" showDetail="true" closable="true"/>
+                                <p:messages showSummary="true" showDetail="true" closable="true"/>
                             </h:panelGrid>
                             <f:facet name="footer">
                                 <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_waiting_biometria_erro').hide();" update="i_app_leitor" action="#{biometriaBean.closeModalApp()}"/>

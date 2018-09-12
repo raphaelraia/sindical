@@ -185,10 +185,10 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     private Integer idServicosAutorizados;
     private List<SelectItem> listNrRegistro;
     private Integer nrRegistro = 1;
-    
+
     public FisicaBean() {
-        GenericaSessao.remove("pessoaComplementoBean");
-        GenericaSessao.remove("sessaoSisAutorizacao");
+        Sessions.remove("pessoaComplementoBean");
+        Sessions.remove("sessaoSisAutorizacao");
         solicitarAutorizacao = "";
         sisAutorizacoes = new SisAutorizacoes();
         configuracaoSocial = ConfiguracaoSocial.get();
@@ -200,7 +200,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         listServicosAutorizados = new ArrayList();
         loadListNrRegistro();
     }
-    
+
     public void loadListServicosAutorizados() {
         listServicosAutorizados = new ArrayList();
         ServicoRotinaDao srd = new ServicoRotinaDao();
@@ -278,9 +278,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public String telaMovimentosReceberSocial() {
-        String retorno = ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).movimentosReceberSocial();
-        GenericaSessao.put("movimentosReceberSocialBean", new MovimentosReceberSocialBean());
-        GenericaSessao.put("pessoaPesquisa", fisica.getPessoa());
+        String retorno = ((ChamadaPaginaBean) Sessions.getObject("chamadaPaginaBean")).movimentosReceberSocial();
+        Sessions.put("movimentosReceberSocialBean", new MovimentosReceberSocialBean());
+        Sessions.put("pessoaPesquisa", fisica.getPessoa());
         return retorno;
     }
 
@@ -300,7 +300,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public String novo() {
-        String urlTemp = "/Cliente/" + getCliente() + "/temp/" + "foto/" + ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId() + "/perfil.png";
+        String urlTemp = "/Cliente/" + getCliente() + "/temp/" + "foto/" + ((Usuario) Sessions.getObject("sessaoUsuario")).getId() + "/perfil.png";
         String arquivo = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(urlTemp);
         while (new File(arquivo).exists()) {
             boolean d = new File(arquivo).delete();
@@ -308,18 +308,18 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 break;
             }
         }
-        GenericaSessao.put("photoCamBean", new PhotoCam());
-        GenericaSessao.put("fisicaBean", new FisicaBean());
-        GenericaSessao.put("pessoaComplementoBean", new PessoaComplementoBean());
-        GenericaSessao.put("pesquisaEnderecoBean", new PesquisaEnderecoBean());
-        GenericaSessao.remove("juridicaPesquisa");
-        GenericaSessao.remove("fisicaPesquisa");
-        GenericaSessao.remove("fisicaPesquisaList");
-        GenericaSessao.remove("enderecoPesquisa");
-        GenericaSessao.remove("enderecoNum");
-        GenericaSessao.remove("enderecoComp");
-        GenericaSessao.remove("pessoaComplementoBean");
-        GenericaSessao.remove("pesquisaEnderecoBean");
+        Sessions.put("photoCamBean", new PhotoCam());
+        Sessions.put("fisicaBean", new FisicaBean());
+        Sessions.put("pessoaComplementoBean", new PessoaComplementoBean());
+        Sessions.put("pesquisaEnderecoBean", new PesquisaEnderecoBean());
+        Sessions.remove("juridicaPesquisa");
+        Sessions.remove("fisicaPesquisa");
+        Sessions.remove("fisicaPesquisaList");
+        Sessions.remove("enderecoPesquisa");
+        Sessions.remove("enderecoNum");
+        Sessions.remove("enderecoComp");
+        Sessions.remove("pessoaComplementoBean");
+        Sessions.remove("pesquisaEnderecoBean");
         clear(0);
         return "pessoaFisica";
     }
@@ -401,13 +401,13 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             if (fisica.getPessoa().getNome().equals("")) {
                 mensagem = "O campo nome não pode ser nulo! ";
                 return;
-            }            
+            }
             if (dao.save(pessoa)) {
                 fisica.setNacionalidade(pais);
                 fisica.setPessoa(pessoa);
                 if (dao.save(fisica)) {
 
-                    GenericaSessao.put("fisicaPesquisa", fisica);
+                    Sessions.put("fisicaPesquisa", fisica);
                     mensagem = "Cadastro salvo com Sucesso!";
                     logs.setTabela("pes_fisica");
                     logs.setCodigo(fisica.getId());
@@ -505,7 +505,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             }
 
             if (dao.update(fisica)) {
-                GenericaSessao.put("fisicaPesquisa", fisica);
+                Sessions.put("fisicaPesquisa", fisica);
                 mensagem = "Cadastro atualizado com Sucesso!";
                 sucesso = true;
                 dao.commit();
@@ -535,8 +535,12 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void salvarPessoaComplemento() {
         if (fisica.getPessoa().getId() != -1) {
-            ((PessoaComplementoBean) GenericaSessao.getObject("pessoaComplementoBean")).update(fisica.getPessoa().getId());
-            pessoaComplemento = ((PessoaComplementoBean) GenericaSessao.getObject("pessoaComplementoBean")).getPessoaComplemento();
+            if (((PessoaComplementoBean) Sessions.getObject("pessoaComplementoBean")).getPessoaComplemento().getId() == -1) {
+                ((PessoaComplementoBean) Sessions.getObject("pessoaComplementoBean")).update(fisica.getPessoa().getId(), false);
+            } else {
+                ((PessoaComplementoBean) Sessions.getObject("pessoaComplementoBean")).update(fisica.getPessoa().getId());
+            }
+            pessoaComplemento = ((PessoaComplementoBean) Sessions.getObject("pessoaComplementoBean")).getPessoaComplemento();
         }
     }
 
@@ -571,7 +575,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public String novoOK() {
         if (fisica.getId() == -1) {
-            GenericaSessao.put("fisicaBean", new FisicaBean());
+            Sessions.put("fisicaBean", new FisicaBean());
         }
         return "pessoaFisica";
     }
@@ -647,6 +651,14 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                     }
                 }
             }
+            PessoaComplemento pc = new PessoaComplementoDao().findByPessoa(fisica.getPessoa().getId());
+            if (pc != null) {
+                if (!dao.delete(pc)) {
+                    dao.rollback();
+                    mensagem = "Erro ao excluir pessoas complemento!";
+                    return;
+                }
+            }
             if (!dao.delete(fisica)) {
                 dao.rollback();
                 mensagem = "Física não pode ser excluída!";
@@ -661,7 +673,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             apagarImagem();
             NovoLog logs = new NovoLog();
             logs.delete("ID: " + fisica.getId() + " - Pessoa: " + fisica.getPessoa().getId() + " - Nascimento: " + fisica.getNascimento() + " - Nome: " + fisica.getPessoa().getNome() + " - CPF: " + fisica.getPessoa().getDocumento() + " - RG: " + fisica.getRg());
-            //GenericaSessao.put("fisicaBean", new FisicaBean());
+            //Sessions.put("fisicaBean", new FisicaBean());
             //((FisicaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("fisicaBean")).setMensagem("Cadastro Excluido com sucesso!");            
             novo();
             mensagem = "Cadastro Excluido com sucesso!";
@@ -671,9 +683,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public String complete() {
-        String url = (String) GenericaSessao.getString("urlRetorno");
-        GenericaSessao.put("fisicaPesquisaList", selectedFisica);
-        GenericaSessao.put("linkClicado", true);
+        String url = (String) Sessions.getString("urlRetorno");
+        Sessions.put("fisicaPesquisaList", selectedFisica);
+        Sessions.put("linkClicado", true);
         multiple = false;
         return url;
     }
@@ -690,7 +702,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public String editarFisica(Fisica f, Boolean completo) {
-        GenericaSessao.remove("pessoaComplementoBean");
+        Sessions.remove("pessoaComplementoBean");
         if (f.getId() == -1) {
             return null;
         }
@@ -698,7 +710,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         selectedFisica = new ArrayList<>();
         multiple = false;
         pessoaComplemento = new PessoaComplemento();
-        String url = (String) GenericaSessao.getString("urlRetorno");
+        String url = (String) Sessions.getString("urlRetorno");
         fisica = (Fisica) new Dao().rebind(f);
         dao.refresh(f.getPessoa());
         solicitarAutorizacao = "";
@@ -708,14 +720,14 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 return null;
             }
         }
-        GenericaSessao.put("fisicaPesquisa", f);
+        Sessions.put("fisicaPesquisa", f);
         if (!url.equals("pessoaFisica") && !url.equals("menuPrincipal") && !completo) {
-            GenericaSessao.put("linkClicado", true);
+            Sessions.put("linkClicado", true);
             return url;
         }
         PessoaEmpresaDao db = new PessoaEmpresaDao();
         PessoaProfissaoDao dbp = new PessoaProfissaoDao();
-        GenericaSessao.remove("pessoaComplementoBean");
+        Sessions.remove("pessoaComplementoBean");
         descPesquisa = "";
         porPesquisa = "nome";
         comoPesquisa = "";
@@ -749,7 +761,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         listaServicoPessoa.clear();
         editarFisicaSocio(fisica);
         showImagemFisica();
-        GenericaSessao.put("linkClicado", true);
+        Sessions.put("linkClicado", true);
         existePessoaOposicaoPorPessoa();
         //fotoTempPerfil = "";
         clear(0);
@@ -782,15 +794,15 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     public void existePessoaDocumento() {
         if (fisica.getPessoa().getDocumento().equals("___.___.___-__")) {
             fisica.getPessoa().setDocumento("");
-            PF.update("form_pessoa_fisica:i_tabview_fisica:i_p_cpf");
+            PF.update("form_pessoa_fisica:i_p_cpf");
             return;
         }
         if (!fisica.getPessoa().getDocumento().isEmpty() && !fisica.getPessoa().getDocumento().equals("___.___.___-__")) {
             if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(fisica.getPessoa().getDocumento()))) {
                 mensagem = "Documento (CPF) inválido! " + fisica.getPessoa().getDocumento();
                 GenericaMensagem.warn("Validação", "Documento (CPF) inválido! " + fisica.getPessoa().getDocumento());
-                PF.update("form_pessoa_fisica:i_tabview_fisica:id_valida_documento");
-                PF.update("form_pessoa_fisica:i_tabview_fisica:i_p_cpf");
+                PF.update("form_pessoa_fisica:id_valida_documento");
+                PF.update("form_pessoa_fisica:i_p_cpf");
                 // fisica.getPessoa().setDocumento("");
                 return;
             }
@@ -884,8 +896,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         Dao dao = new Dao();
         PessoaEmpresaDao db = new PessoaEmpresaDao();
         fisica = (Fisica) dao.rebind(f);
-        GenericaSessao.put("fisicaPesquisa", fisica);
-        String url = (String) GenericaSessao.getString("urlRetorno");
+        Sessions.put("fisicaPesquisa", fisica);
+        String url = (String) Sessions.getString("urlRetorno");
         descPesquisa = "";
         porPesquisa = "nome";
         comoPesquisa = "";
@@ -898,10 +910,10 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             } else {
                 profissao = new Profissao();
             }
-            //GenericaSessao.put("juridicaPesquisa", pessoaEmpresa.getJuridica());
+            //Sessions.put("juridicaPesquisa", pessoaEmpresa.getJuridica());
             renderJuridicaPesquisa = true;
         } else {
-            GenericaSessao.remove("juridicaPesquisa");
+            Sessions.remove("juridicaPesquisa");
             profissao = new Profissao();
             renderJuridicaPesquisa = false;
         }
@@ -913,7 +925,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         }
         listaServicoPessoa.clear();
         editarFisicaSocio(fisica);
-        GenericaSessao.put("linkClicado", true);
+        Sessions.put("linkClicado", true);
 
         showImagemFisica();
         getListaSocioInativo().clear();
@@ -1128,7 +1140,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             if (pessoaEmpresa.getDemissao() != null && !pessoaEmpresa.getDemissao().isEmpty()) {
                 pessoaEmpresa = new PessoaEmpresa();
                 profissao = new Profissao();
-                GenericaSessao.remove("juridicaPesquisa");
+                Sessions.remove("juridicaPesquisa");
                 renderJuridicaPesquisa = false;
 
                 List<PessoaEmpresa> lpe = db.listaPessoaEmpresaPorFisicaDemissao(fisica.getId());
@@ -1342,8 +1354,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             disabledNaturalidade = false;
         }
         Cidade cidade;
-        if (GenericaSessao.exists("cidadePesquisa")) {
-            cidade = (Cidade) GenericaSessao.getObject("cidadePesquisa", true);
+        if (Sessions.exists("cidadePesquisa")) {
+            cidade = (Cidade) Sessions.getObject("cidadePesquisa", true);
             nat = cidade.getCidade();
             nat = nat + " - " + cidade.getUf();
             fisica.setNaturalidade(nat);
@@ -1411,7 +1423,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 return;
             }
         }
-        GenericaSessao.remove("juridicaPesquisa");
+        Sessions.remove("juridicaPesquisa");
         pessoaEmpresa = new PessoaEmpresa();
         profissao = new Profissao();
         renderJuridicaPesquisa = false;
@@ -1535,10 +1547,10 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         }
 
         if (pessoaEmpresa.getId() != -1) {
-            GenericaSessao.put("pessoaEmpresaPesquisa", pessoaEmpresa);
+            Sessions.put("pessoaEmpresaPesquisa", pessoaEmpresa);
         }
 
-        String retorno = ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).socios();
+        String retorno = ((ChamadaPaginaBean) Sessions.getObject("chamadaPaginaBean")).socios();
         if (socios.getId() == -1) {
             reativar = false;
         }
@@ -1553,8 +1565,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             }
         }
 
-        GenericaSessao.put("sociosBean", new SociosBean());
-        SociosBean sb = (SociosBean) GenericaSessao.getObject("sociosBean");
+        Sessions.put("sociosBean", new SociosBean());
+        SociosBean sb = (SociosBean) Sessions.getObject("sociosBean");
         clear(0);
         sb.loadSocio(p, reativar);
         return retorno;
@@ -1588,9 +1600,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         }
         clear(0);
         String retorno = ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).socios();
-        GenericaSessao.put("pessoaEmpresaPesquisa", (new PessoaEmpresaDao()).pesquisaPessoaEmpresaPorPessoa(_pessoa.getId()));
-        GenericaSessao.put("sociosBean", new SociosBean());
-        SociosBean sb = (SociosBean) GenericaSessao.getObject("sociosBean");
+        Sessions.put("pessoaEmpresaPesquisa", (new PessoaEmpresaDao()).pesquisaPessoaEmpresaPorPessoa(_pessoa.getId()));
+        Sessions.put("sociosBean", new SociosBean());
+        SociosBean sb = (SociosBean) Sessions.getObject("sociosBean");
         sb.loadSocio(fisica.getPessoa(), true);
         return retorno;
     }
@@ -1672,8 +1684,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public Fisica getFisica() {
-        if (GenericaSessao.exists("fisicaPesquisaEditar")) {
-            editarFisica((Fisica) GenericaSessao.getObject("fisicaPesquisaEditar", true), true);
+        if (Sessions.exists("fisicaPesquisaEditar")) {
+            editarFisica((Fisica) Sessions.getObject("fisicaPesquisaEditar", true), true);
         }
         if (fisica.getId() == -1) {
             tipo = "novo";
@@ -1720,9 +1732,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public PessoaEmpresa getPessoaEmpresa() {
-        if (GenericaSessao.exists("juridicaPesquisa") && !GenericaSessao.exists("tipoPessoaJuridica")) {
+        if (Sessions.exists("juridicaPesquisa") && !Sessions.exists("tipoPessoaJuridica")) {
             JuridicaDao db = new JuridicaDao();
-            Juridica j = (Juridica) GenericaSessao.getObject("juridicaPesquisa");
+            Juridica j = (Juridica) Sessions.getObject("juridicaPesquisa");
             List listax = db.listaJuridicaContribuinte(j.getId());
 
             if (!listax.isEmpty()) {
@@ -1742,7 +1754,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 pessoaEmpresa.setJuridica(j);
                 renderJuridicaPesquisa = true;
             }
-            GenericaSessao.remove("juridicaPesquisa");
+            Sessions.remove("juridicaPesquisa");
         }
         return pessoaEmpresa;
     }
@@ -1792,8 +1804,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public Socios getSocios() {
-        if (GenericaSessao.exists("socioPesquisa")) {
-            socios = (Socios) GenericaSessao.getObject("socioPesquisa", true);
+        if (Sessions.exists("socioPesquisa")) {
+            socios = (Socios) Sessions.getObject("socioPesquisa", true);
         }
         return socios;
     }
@@ -2080,8 +2092,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public String getCliente() {
         if (cliente.equals("")) {
-            if (GenericaSessao.exists("sessaoCliente")) {
-                return GenericaSessao.getString("sessaoCliente");
+            if (Sessions.exists("sessaoCliente")) {
+                return Sessions.getString("sessaoCliente");
             }
         }
         return cliente;
@@ -2092,8 +2104,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public Usuario getUsuario() {
-        if (GenericaSessao.exists("sessaoUsuario")) {
-            usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
+        if (Sessions.exists("sessaoUsuario")) {
+            usuario = (Usuario) Sessions.getObject("sessaoUsuario");
         }
         return usuario;
     }
@@ -2173,8 +2185,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public Endereco getEnderecox() {
-        if (GenericaSessao.getObject("enderecoPesquisa") != null) {
-            enderecox = (Endereco) GenericaSessao.getObject("enderecoPesquisa", true);
+        if (Sessions.getObject("enderecoPesquisa") != null) {
+            enderecox = (Endereco) Sessions.getObject("enderecoPesquisa", true);
 
             enderecoCompleto = enderecox.getLogradouro().getDescricao() + " "
                     + enderecox.getDescricaoEndereco().getDescricao() + ", "
@@ -2382,13 +2394,13 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         String como = "";
         String por = "";
         FisicaBean fisicaBean = new FisicaBean();
-        if (GenericaSessao.exists("fisicaBean")) {
-            descricao = ((FisicaBean) GenericaSessao.getObject("fisicaBean")).getDescPesquisa();
-            List list = ((FisicaBean) GenericaSessao.getObject("fisicaBean")).getListaPessoaFisica();
-            como = ((FisicaBean) GenericaSessao.getObject("fisicaBean")).getComoPesquisa();
-            por = ((FisicaBean) GenericaSessao.getObject("fisicaBean")).getPorPesquisa();
-            GenericaSessao.remove("fisicaBean");
-            GenericaSessao.remove("fisicaPesquisa");
+        if (Sessions.exists("fisicaBean")) {
+            descricao = ((FisicaBean) Sessions.getObject("fisicaBean")).getDescPesquisa();
+            List list = ((FisicaBean) Sessions.getObject("fisicaBean")).getListaPessoaFisica();
+            como = ((FisicaBean) Sessions.getObject("fisicaBean")).getComoPesquisa();
+            por = ((FisicaBean) Sessions.getObject("fisicaBean")).getPorPesquisa();
+            Sessions.remove("fisicaBean");
+            Sessions.remove("fisicaPesquisa");
             fisicaBean.setDescPesquisa(descricao);
             fisicaBean.setListaPessoaFisica(list);
             fisicaBean.setComoPesquisa(como);
@@ -2402,7 +2414,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             fisicaBean.setMultiple(true);
         }
         fisicaBean.getListaPessoaFisica();
-        GenericaSessao.put("fisicaBean", fisicaBean);
+        Sessions.put("fisicaBean", fisicaBean);
     }
 
     public String getValidacao() {
@@ -2415,7 +2427,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public Boolean listernerValidacao(Fisica f, String tipoValidacao) {
         solicitarAutorizacao = "";
-        String pesquisaFisicaTipo = GenericaSessao.getString("pesquisaFisicaTipo");
+        String pesquisaFisicaTipo = Sessions.getString("pesquisaFisicaTipo");
         pessoaOposicao = false;
         Boolean permite = true;
         Pessoa p = f.getPessoa();
@@ -2512,7 +2524,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "associarFisica":
             case "conviteMovimento":
             case "agendamentos":
-                GenericaSessao.remove("sessaoSisAutorizacao");
+                Sessions.remove("sessaoSisAutorizacao");
                 Boolean ignoreCase = false;
                 if (validacao.equals("emissaoGuias")) {
                     SisAutorizacoes sa = new SisAutorizacoesDao().findAutorizado(3, Usuario.getUsuario().getId(), fisica.getPessoa().getId(), new ChamadaPaginaBean().getRotinaRetorno().getId());
@@ -2524,7 +2536,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                         } else {
                             if (sa.getAutorizado()) {
                                 if (sa.getDtConcluido() == null) {
-                                    GenericaSessao.put("sessaoSisAutorizacao", sa);
+                                    Sessions.put("sessaoSisAutorizacao", sa);
                                     ignoreCase = true;
                                 } else {
                                     count++;
@@ -2560,8 +2572,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "matriculaAcademia":
             case "matriculaEscola":
                 String tipoFisica = "";
-                if (GenericaSessao.exists("pesquisaFisicaTipo")) {
-                    tipoFisica = GenericaSessao.getString("pesquisaFisicaTipo");
+                if (Sessions.exists("pesquisaFisicaTipo")) {
+                    tipoFisica = Sessions.getString("pesquisaFisicaTipo");
                 }
                 if (tipoFisica.equals("aluno")) {
                     if (fisica.getPessoa().getEmail1().isEmpty()) {
@@ -2994,8 +3006,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public String getInCategoriaSocio() {
-        if (GenericaSessao.exists("inCategoriaSocio")) {
-            inCategoriaSocio = GenericaSessao.getString("inCategoriaSocio", true);
+        if (Sessions.exists("inCategoriaSocio")) {
+            inCategoriaSocio = Sessions.getString("inCategoriaSocio", true);
         }
         return inCategoriaSocio;
     }
@@ -3090,9 +3102,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public PessoaEmpresa getPessoaEmpresaEdit() {
-        if (GenericaSessao.exists("juridicaPesquisa") && GenericaSessao.exists("tipoPessoaJuridica")) {
+        if (Sessions.exists("juridicaPesquisa") && Sessions.exists("tipoPessoaJuridica")) {
             JuridicaDao db = new JuridicaDao();
-            Juridica j = (Juridica) GenericaSessao.getObject("juridicaPesquisa");
+            Juridica j = (Juridica) Sessions.getObject("juridicaPesquisa");
             List listax = db.listaJuridicaContribuinte(j.getId());
             if (!listax.isEmpty()) {
                 for (int i = 0; i < listax.size(); i++) {
@@ -3107,8 +3119,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             } else {
                 pessoaEmpresaEdit.setJuridica(j);
             }
-            GenericaSessao.remove("juridicaPesquisa");
-            GenericaSessao.remove("tipoPessoaJuridica");
+            Sessions.remove("juridicaPesquisa");
+            Sessions.remove("tipoPessoaJuridica");
         }
         return pessoaEmpresaEdit;
     }
@@ -3140,7 +3152,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public Boolean getCadastrar() {
-        if (GenericaSessao.exists("cadastrar")) {
+        if (Sessions.exists("cadastrar")) {
             cadastrar = true;
         }
         return cadastrar;
@@ -3151,7 +3163,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public Boolean getEditar() {
-        if (GenericaSessao.exists("editar")) {
+        if (Sessions.exists("editar")) {
             editar = true;
         }
         return editar;
@@ -3450,8 +3462,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public Boolean getLiberaRotinaRetorno() {
-        if (GenericaSessao.exists("urlRetorno")) {
-            if (GenericaSessao.getString("urlRetorno").equals("emissaoGuias")) {
+        if (Sessions.exists("urlRetorno")) {
+            if (Sessions.getString("urlRetorno").equals("emissaoGuias")) {
                 return true;
             }
         }
@@ -3498,18 +3510,18 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         JuridicaBean juridicaBean = new JuridicaBean();
         for (int i = 0; i < listPessoaEmpresa.size(); i++) {
             if (listPessoaEmpresa.get(i).isSocio()) {
-                GenericaSessao.remove("juridicaBean");
+                Sessions.remove("juridicaBean");
                 JuridicaBean jb = new JuridicaBean();
                 jb.init();
-                GenericaSessao.put("juridicaBean", jb);
-                return ((JuridicaBean) GenericaSessao.getObject("juridicaBean")).editar(listPessoaEmpresa.get(i).getJuridica(), true);
+                Sessions.put("juridicaBean", jb);
+                return ((JuridicaBean) Sessions.getObject("juridicaBean")).editar(listPessoaEmpresa.get(i).getJuridica(), true);
             }
         }
-        GenericaSessao.remove("juridicaBean");
-        GenericaSessao.put("newMei", true);
-        GenericaSessao.put("newFisicaMei", fisica);
-        ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).setDisabled(true);
-        return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).pagina("pessoaJuridica");
+        Sessions.remove("juridicaBean");
+        Sessions.put("newMei", true);
+        Sessions.put("newFisicaMei", fisica);
+        ((ChamadaPaginaBean) Sessions.getObject("chamadaPaginaBean")).setDisabled(true);
+        return ((ChamadaPaginaBean) Sessions.getObject("chamadaPaginaBean")).pagina("pessoaJuridica");
     }
 
     public boolean isFisicaMei() {
@@ -3579,10 +3591,10 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             } else {
                 profissao = new Profissao();
             }
-            //GenericaSessao.put("juridicaPesquisa", pessoaEmpresa.getJuridica());
+            //Sessions.put("juridicaPesquisa", pessoaEmpresa.getJuridica());
             renderJuridicaPesquisa = true;
         } else {
-            GenericaSessao.remove("juridicaPesquisa");
+            Sessions.remove("juridicaPesquisa");
             profissao = new Profissao();
             renderJuridicaPesquisa = false;
         }
