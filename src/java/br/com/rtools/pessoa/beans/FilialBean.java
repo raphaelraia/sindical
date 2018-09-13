@@ -31,7 +31,7 @@ public class FilialBean {
     private Filial filialSubsede;
     private List<Filial> listaFilial;
     private int idFilial;
-    private List<CidadesAux> listCidadesAux;
+    private List<FilialCidadeAux> listFilialCidadeAux;
     private boolean adicionarLista;
     private List<SelectItem> listFilialSelectItem;
     private List<SelectItem> listFilialSelectItemSub;
@@ -47,7 +47,7 @@ public class FilialBean {
         filialSubsede = new Filial();
         juridica = new Juridica();
         listaFilial = new ArrayList();
-        listCidadesAux = new ArrayList();
+        listFilialCidadeAux = new ArrayList();
         idFilial = 0;
         adicionarLista = false;
         listFilialSelectItem = new ArrayList();
@@ -55,6 +55,7 @@ public class FilialBean {
         showModal = false;
         listFilialCidade = new ArrayList();
         idFilialSub = null;
+        loadListFilialCidade();
     }
 
     @PreDestroy
@@ -69,7 +70,7 @@ public class FilialBean {
 
         Dao dao = new Dao();
         Filial fx = (Filial) dao.find(new Filial(), listaFilial.get(event.getRowIndex()).getId());
-        if(Types.isInteger(newValue)) {
+        if (Types.isInteger(newValue)) {
             fx.setQuantidadeAgendamentosPorEmpresa((Integer) newValue);
         } else {
             fx.setApelido((String) newValue);
@@ -168,61 +169,83 @@ public class FilialBean {
         filial = new Filial();
     }
 
-    public void saveCidadeFilial(Cidade cid, Integer filial_id) {
+    public void saveFilialCidade(FilialCidade fc, Cidade cid, Integer filial_id) {
         FilialCidadeDao db = new FilialCidadeDao();
-        FilialCidade filialCidade;
         NovoLog novoLog = new NovoLog();
         Dao di = new Dao();
         int iCidade = cid.getId();
-        List<FilialCidade> list = db.findListBy(cid.getId(), false);
-        for (int i = 0; i < list.size(); i++) {
-            if (Objects.equals(filial_id, list.get(i).getFilial().getId())) {
-                GenericaMensagem.warn("Sucesso", "Filial já está cadastrada! Consulte as subsedes.");
-                return;
+        if (fc == null || (Objects.equals(fc.getFilial().getFilial().getId(), filial_id))) {
+            List<FilialCidade> list = db.findListBy(cid.getId(), false);
+            for (int i = 0; i < list.size(); i++) {
+                if (Objects.equals(filial_id, list.get(i).getFilial().getId())) {
+                    GenericaMensagem.warn("Sucesso", "Filial já está cadastrada! Consulte as subsedes.");
+                    return;
+                }
             }
         }
-        if (filial_id != -1) {
-            filialCidade = db.pesquisaFilialPorCidade(iCidade);
-            if (filialCidade.getId() != -1) {
-                filialCidade.setFilial((Filial) di.find(new Filial(), filial_id));
-                filialCidade.setPrincipal(true);
-                GenericaMensagem.info("Sucesso", "Cidade atualizada com Sucesso!");
-                if (di.update(filialCidade, true)) {
-                    novoLog.update("", "Cidade Filial - "
-                            + "ID: " + filialCidade.getId()
-                            + " - Filial: (" + filialCidade.getFilial().getId() + ") " + filialCidade.getFilial().getFilial().getPessoa().getNome()
-                            + " - Cidade: (" + filialCidade.getCidade().getId() + ") " + filialCidade.getCidade().getCidade()
-                    );
-                }
-            } else {
-                filialCidade = new FilialCidade();
-                filialCidade.setCidade((Cidade) di.find(new Cidade(), iCidade));
-                filialCidade.setFilial((Filial) di.find(new Filial(), filial_id));
-                filialCidade.setPrincipal(true);
-                GenericaMensagem.info("Sucesso", "Cidade atualizada com Sucesso!");
-                if (di.save(filialCidade, true)) {
-                    novoLog.save("Cidade Filial - "
-                            + "ID: " + filialCidade.getId()
-                            + " - Filial: (" + filialCidade.getFilial().getId() + ") " + filialCidade.getFilial().getFilial().getPessoa().getNome()
-                            + " - Cidade: (" + filialCidade.getCidade().getId() + ") " + filialCidade.getCidade().getCidade()
-                    );
-                }
-            }
-        } else {
-            filialCidade = db.pesquisaFilialPorCidade(iCidade);
+        FilialCidade filialCidade;
+        if (fc == null && filial_id != null) {
+            filialCidade = new FilialCidade();
+            filialCidade.setCidade((Cidade) di.find(new Cidade(), iCidade));
+            filialCidade.setFilial((Filial) di.find(new Filial(), filial_id));
             filialCidade.setPrincipal(true);
-            if (filialCidade.getId() != -1) {
-                if (di.delete(filialCidade, true)) {
-                    novoLog.save("Cidade Filial - "
-                            + "ID: " + filialCidade.getId()
-                            + " - Filial: (" + filialCidade.getFilial().getId() + ") " + filialCidade.getFilial().getFilial().getPessoa().getNome()
-                            + " - Cidade: (" + filialCidade.getCidade().getId() + ") " + filialCidade.getCidade().getCidade()
-                    );
-                }
+            if (di.save(filialCidade, true)) {
                 GenericaMensagem.info("Sucesso", "Cidade atualizada com Sucesso!");
+                novoLog.save("Cidade Filial - "
+                        + "ID: " + filialCidade.getId()
+                        + " - Filial: (" + filialCidade.getFilial().getId() + ") " + filialCidade.getFilial().getFilial().getPessoa().getNome()
+                        + " - Cidade: (" + filialCidade.getCidade().getId() + ") " + filialCidade.getCidade().getCidade()
+                );
+            } else {
+                GenericaMensagem.warn("Erro", "Erro ao atualizar cidade!");
             }
         }
+        if (fc != null && filial_id != null) {
+            fc.setFilial((Filial) di.find(new Filial(), filial_id));
+            fc.setPrincipal(true);
+            if (di.update(fc, true)) {
+                GenericaMensagem.info("Sucesso", "Cidade atualizada com Sucesso!");
+                novoLog.update("", "Cidade Filial - "
+                        + "ID: " + fc.getId()
+                        + " - Filial: (" + fc.getFilial().getId() + ") " + fc.getFilial().getFilial().getPessoa().getNome()
+                        + " - Cidade: (" + fc.getCidade().getId() + ") " + fc.getCidade().getCidade()
+                );
+            } else {
+                GenericaMensagem.warn("Erro", "Erro ao atualizar cidade!");
+            }
+        }
+        if (fc != null && filial_id == null) {
+            if (di.delete(fc, true)) {
+                GenericaMensagem.info("Sucesso", "Cidade atualizada com Sucesso!");
+                novoLog.delete("Cidade Filial - "
+                        + "ID: " + fc.getId()
+                        + " - Filial: (" + fc.getFilial().getId() + ") " + fc.getFilial().getFilial().getPessoa().getNome()
+                        + " - Cidade: (" + fc.getCidade().getId() + ") " + fc.getCidade().getCidade()
+                );
+            }
+
+        }
+//        if (filial_id != -1) {
+//            filialCidade = db.pesquisaFilialPorCidade(iCidade);
+//            if (filialCidade.getId() != -1) {
+//            } else {
+//            }
+//        } else {
+//            filialCidade = db.pesquisaFilialPorCidade(iCidade);
+//            filialCidade.setPrincipal(true);
+//            if (filialCidade.getId() != -1) {
+//                if (di.delete(filialCidade, true)) {
+//                    novoLog.save("Cidade Filial - "
+//                            + "ID: " + filialCidade.getId()
+//                            + " - Filial: (" + filialCidade.getFilial().getId() + ") " + filialCidade.getFilial().getFilial().getPessoa().getNome()
+//                            + " - Cidade: (" + filialCidade.getCidade().getId() + ") " + filialCidade.getCidade().getCidade()
+//                    );
+//                }
+//                GenericaMensagem.info("Sucesso", "Cidade atualizada com Sucesso!");
+//            }
+//        }
         listFilialSelectItem = new ArrayList();
+        loadListFilialCidade();
 
     }
 
@@ -281,9 +304,9 @@ public class FilialBean {
         if ((listFilialSelectItem.isEmpty()) || (this.adicionarLista)) {
             listFilialSelectItem.clear();
             List<Filial> fi = new Dao().list(new Filial(), true);
-            listFilialSelectItem.add(new SelectItem(-1, " -- NENHUM -- "));
+            listFilialSelectItem.add(new SelectItem(null, " -- NENHUM -- "));
             for (int i = 0; i < fi.size(); i++) {
-                listFilialSelectItem.add(new SelectItem(fi.get(i).getId(), fi.get(i).getFilial().getPessoa().getNome()));
+                listFilialSelectItem.add(new SelectItem(fi.get(i).getId(), fi.get(i).getFilial().getFantasia()));
             }
             this.adicionarLista = false;
         }
@@ -420,54 +443,33 @@ public class FilialBean {
         loadListFilialSelectItemSub();
     }
 
-    public List<CidadesAux> getListCidadesAux() {
-        if (listCidadesAux.isEmpty()) {
-            GrupoCidadesDao dbCids = new GrupoCidadesDao();
-            //List<GrupoCidades> lis = dbCids.pesquisaTodos();
-            List<Cidade> lis = dbCids.pesquisaCidadesBase();
-
-            Dao di = new Dao();
-            List<FilialCidade> fc = (List<FilialCidade>) di.list(new FilialCidade());
-
-            if (!lis.isEmpty()) {
-                boolean tem;
-                for (int i = 0; i < lis.size(); i++) {
-                    tem = false;
-                    for (int w = 0; w < fc.size(); w++) {
-                        if (lis.get(i).getId() == fc.get(w).getCidade().getId()) {
-                            for (int u = 0; u < getListFilialSelectItem().size(); u++) {
-                                try {
-                                    Integer filial_id = Integer.parseInt(listFilialSelectItem.get(u).getValue().toString());
-                                    if (Objects.equals(fc.get(w).getFilial().getId(), filial_id)) {
-                                        listCidadesAux.add(new CidadesAux(filial_id, (Cidade) di.find(new Cidade(), lis.get(i).getId())));
-                                        tem = true;
-                                    }
-                                } catch (Exception e) {
-                                    e.getCause();
-                                }
-                                if (tem) {
-                                    break;
-                                }
-                            }
-                            if (tem) {
-                                break;
-                            }
-                        }
-                        if (tem) {
-                            break;
-                        }
-                    }
-                    if (!tem) {
-                        listCidadesAux.add(new CidadesAux(-1, (Cidade) di.find(new Cidade(), lis.get(i).getId())));
-                    }
+    public void loadListFilialCidade() {
+        listFilialCidadeAux = new ArrayList();
+        List<Cidade> listCidades = new GrupoCidadesDao().pesquisaCidadesBase();
+        List<Filial> listFilial = new Dao().list(new Filial());
+        FilialCidadeDao fcd = new FilialCidadeDao();
+        for (int i = 0; i < listCidades.size(); i++) {
+            boolean tem = false;
+            for (int x = 0; x < listFilial.size(); x++) {
+                FilialCidade fc = fcd.findByCidade(listCidades.get(i).getId(), listFilial.get(x).getId(), true);
+                if (fc != null) {
+                    tem = true;
+                    listFilialCidadeAux.add(new FilialCidadeAux(fc, fc.getFilial().getId(), listCidades.get(i)));
+                    break;
                 }
             }
+            if (!tem) {
+                listFilialCidadeAux.add(new FilialCidadeAux(null, null, listCidades.get(i)));
+            }
         }
-        return listCidadesAux;
     }
 
-    public void setListCidadesAux(List<CidadesAux> listCidadesAux) {
-        this.listCidadesAux = listCidadesAux;
+    public List<FilialCidadeAux> getListFilialCidadeAux() {
+        return listFilialCidadeAux;
+    }
+
+    public void setListFilialCidadeAux(List<FilialCidadeAux> listFilialCidadeAux) {
+        this.listFilialCidadeAux = listFilialCidadeAux;
     }
 
     public Cidade getSelectedCidade() {
@@ -502,43 +504,34 @@ public class FilialBean {
         this.idFilialSub = idFilialSub;
     }
 
-    public class CidadesAux {
+    public class FilialCidadeAux {
 
-        private Integer index;
+        private FilialCidade fc;
         private Cidade cidade;
-        private List<SelectItem> listFilialSelectItem;
+//        private List<SelectItem> listFilialSelectItem;
         private Integer idFilial;
         private List<FilialCidade> listFilialCidade;
 
-        public CidadesAux() {
-            this.index = null;
+        public FilialCidadeAux() {
             this.cidade = null;
-            this.listFilialSelectItem = new ArrayList();
+//            this.listFilialSelectItem = new ArrayList();
             this.idFilial = null;
             this.listFilialCidade = new ArrayList();
+            this.fc = null;
         }
 
-        public CidadesAux(Integer index, Cidade cidade) {
-            this.index = index;
-            this.cidade = cidade;
-        }
-
-        public CidadesAux(Integer index, Cidade cidade, List<SelectItem> listFilialSelectItem, Integer idFilial, List<FilialCidade> listFilialCidade) {
-            this.index = index;
-            this.cidade = cidade;
-            this.listFilialSelectItem = listFilialSelectItem;
+        public FilialCidadeAux(FilialCidade fc, Integer idFilial, Cidade cidade) {
+            this.fc = fc;
             this.idFilial = idFilial;
-            this.listFilialCidade = listFilialCidade;
+            this.cidade = cidade;
         }
 
-        public Integer getIndex() {
-            return index;
-        }
-
-        public void setIndex(Integer index) {
-            this.index = index;
-        }
-
+//        public FilialCidadeAux(Cidade cidade, List<SelectItem> listFilialSelectItem, Integer idFilial, List<FilialCidade> listFilialCidade) {
+//            this.cidade = cidade;
+//            this.listFilialSelectItem = listFilialSelectItem;
+//            this.idFilial = idFilial;
+//            this.listFilialCidade = listFilialCidade;
+//        }
         public Cidade getCidade() {
             return cidade;
         }
@@ -547,37 +540,36 @@ public class FilialBean {
             this.cidade = cidade;
         }
 
-        public List<SelectItem> getListFilialSelectItem() {
-            if (listFilialSelectItem.isEmpty() || adicionarLista) {
-                if (cidade.getId() != -1) {
-                    listFilialSelectItem.clear();
-                    List<Filial> list = new Dao().list(new Filial(), true);
-                    FilialCidadeDao filialCidadeDao = new FilialCidadeDao();
-                    List<FilialCidade> listFilialCidade = filialCidadeDao.findListBy(cidade.getId());
-                    for (int i = 0; i < list.size(); i++) {
-                        for (int y = 0; y < listFilialCidade.size(); y++) {
-                            if (Objects.equals(listFilialCidade.get(y).getFilial().getId(), list.get(i).getId())) {
-                                list.remove(i);
-                                break;
-                            }
-                        }
-                    }
-                    listFilialSelectItem.add(new SelectItem(-1, " -- NENHUM -- "));
-                    for (int i = 0; i < list.size(); i++) {
-                        if (i == 0) {
-                            idFilial = list.get(i).getId();
-                        }
-                        listFilialSelectItem.add(new SelectItem(list.get(i).getId(), list.get(i).getFilial().getPessoa().getNome()));
-                    }
-                }
-            }
-            return listFilialSelectItem;
-        }
-
-        public void setListFilialSelectItem(List<SelectItem> listFilialSelectItem) {
-            this.listFilialSelectItem = listFilialSelectItem;
-        }
-
+//        public List<SelectItem> getListFilialSelectItem() {
+//            if (listFilialSelectItem.isEmpty() || adicionarLista) {
+//                if (cidade.getId() != -1) {
+//                    listFilialSelectItem.clear();
+//                    List<Filial> list = new Dao().list(new Filial(), true);
+//                    FilialCidadeDao filialCidadeDao = new FilialCidadeDao();
+//                    List<FilialCidade> listFilialCidade = filialCidadeDao.findListBy(cidade.getId());
+//                    for (int i = 0; i < list.size(); i++) {
+//                        for (int y = 0; y < listFilialCidade.size(); y++) {
+//                            if (Objects.equals(listFilialCidade.get(y).getFilial().getId(), list.get(i).getId())) {
+//                                list.remove(i);
+//                                break;
+//                            }
+//                        }
+//                    }
+//                    listFilialSelectItem.add(new SelectItem(-1, " -- NENHUM -- "));
+//                    for (int i = 0; i < list.size(); i++) {
+//                        if (i == 0) {
+//                            idFilial = list.get(i).getId();
+//                        }
+//                        listFilialSelectItem.add(new SelectItem(list.get(i).getId(), list.get(i).getFilial().getPessoa().getNome()));
+//                    }
+//                }
+//            }
+//            return listFilialSelectItem;
+//        }
+//
+//        public void setListFilialSelectItem(List<SelectItem> listFilialSelectItem) {
+//            this.listFilialSelectItem = listFilialSelectItem;
+//        }
         public Integer getIdFilial() {
             return idFilial;
         }
@@ -597,6 +589,14 @@ public class FilialBean {
 
         public void setListFilialCidade(List<FilialCidade> listFilialCidade) {
             this.listFilialCidade = listFilialCidade;
+        }
+
+        public FilialCidade getFc() {
+            return fc;
+        }
+
+        public void setFc(FilialCidade fc) {
+            this.fc = fc;
         }
 
     }

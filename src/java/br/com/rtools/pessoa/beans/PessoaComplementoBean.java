@@ -36,11 +36,22 @@ public class PessoaComplementoBean extends PesquisarProfissaoBean implements Ser
     }
 
     public String update(Integer pessoa_id) {
+        return update(pessoa_id, true);
+    }
+
+    public String update(Integer pessoa_id, Boolean showMessage) {
+        Rotina r = new Rotina().get();
         if (pessoa_id != -1) {
             Dao dao = new Dao();
             pessoaComplemento.setPessoa((Pessoa) dao.find(new Pessoa(), (int) pessoa_id));
             pessoaComplemento.setNrDiaVencimento(diaVencimento);
-
+            
+            if (pessoaComplemento.getPessoa().getEmail1().isEmpty()) {
+                if(Integer.parseInt(listaStatusCobranca.get(indexStatusCobranca).getDescription()) == 2) {
+                    GenericaMensagem.warn("Importante", "Status de cobrança tipo Email deve ter email cadastro!");
+                }
+            }
+            
             if (pessoaComplemento.getPessoa().getEmail1().isEmpty()) {
                 pessoaComplemento.setStatusCobranca((StatusCobranca) new Dao().find(new StatusCobranca(), 1));
             } else {
@@ -57,20 +68,23 @@ public class PessoaComplementoBean extends PesquisarProfissaoBean implements Ser
             if (pessoaComplemento.getId() == -1) {
                 if (dao.save(pessoaComplemento)) {
                     dao.commit();
-                    GenericaMensagem.info("Sucesso", "Pessoa Complemento salva!");
+                    if (showMessage) {
+                        GenericaMensagem.info("Sucesso", "Pessoa Complemento salva!");
+                    }
                 } else {
                     dao.rollback();
                     GenericaMensagem.error("Atenção", "Erro ao salvar Pessoa Complemento!");
                 }
             } else if (dao.update(pessoaComplemento)) {
                 dao.commit();
-                GenericaMensagem.info("Sucesso", "Pessoa Complemento atualizada!");
+                if (showMessage) {
+                    GenericaMensagem.info("Sucesso", "Pessoa Complemento atualizada!");
+                }
             } else {
                 dao.rollback();
                 GenericaMensagem.error("Atenção", "Erro ao Atualizar Pessoa Complemento!");
             }
         }
-        Rotina r = new Rotina().get();
         if (r.getId() == 71) {
             ((FisicaBean) GenericaSessao.getObject("fisicaBean")).setPessoaComplemento(pessoaComplemento);
             PF.update("form_pessoa_fisica:id_msg_aviso_block");
