@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.List;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
+import org.primefaces.json.JSONObject;
 
 public class Itau extends Cobranca {
 // CNAB 400
@@ -332,7 +333,7 @@ public class Itau extends Cobranca {
 
             for (Integer i = 0; i < listaBoletoRemessa.size(); i++) {
                 Boleto bol = listaBoletoRemessa.get(i).getBoleto();
-                
+
                 CONTEUDO_REMESSA += "1"; // TIPO DE REGISTRO  IDENTIFICAÇÃO DO REGISTRO TRANSAÇÃO 001   001  9(01) 1
                 CONTEUDO_REMESSA += "02"; // CÓDIGO DE INSCRIÇÃO TIPO DE INSCRIÇÃO DA EMPRESA 002   003  9(02) NOTA 1
 
@@ -392,10 +393,20 @@ public class Itau extends Cobranca {
                 String[] data_emissao = DataHoje.DataToArrayString(DataHoje.data());
                 CONTEUDO_REMESSA += data_emissao[0] + data_emissao[1] + data_emissao[2].substring(2, 4); // DATA DE EMISSÃO  DATA DA EMISSÃO DO TÍTULO 151   156 9(06) NOTA 31
 
-                CONTEUDO_REMESSA += "00"; // INSTRUÇÃO 1  1ª INSTRUÇÃO DE COBRANÇA  157   158  X(02) NOTA 11 (05 - RECEBER CONFORME INSTRUÇÕES NO PRÓPRIO TÍTULO ) 
-                CONTEUDO_REMESSA += "00"; // INSTRUÇÃO 2  2ª INSTRUÇÃO DE COBRANÇA 159   160 X(02) NOTA 11 (10 - NÃO PROTESTAR) 
+                CONTEUDO_REMESSA += "05"; // INSTRUÇÃO 1  1ª INSTRUÇÃO DE COBRANÇA  157   158  X(02) NOTA 11 (05 - RECEBER CONFORME INSTRUÇÕES NO PRÓPRIO TÍTULO ) 
+                CONTEUDO_REMESSA += "10"; // INSTRUÇÃO 2  2ª INSTRUÇÃO DE COBRANÇA 159   160 X(02) NOTA 11 (10 - NÃO PROTESTAR) 
 
-                CONTEUDO_REMESSA += "0000000000000"; // JUROS DE 1 DIA   VALOR DE MORA POR DIA DE ATRASO 161   173  9(11)V9(2) NOTA 12 
+                if (bol.getContaCobranca().getJurosMensal() > 0) {
+                    Double jr = new Double(0);
+                    if (valor_titulo_double > 4) {
+                        jr = ((bol.getContaCobranca().getJurosMensal() * valor_titulo_double) / 100) / 30;
+                    }
+                    String sjr = Moeda.converteDoubleToString(jr).replace(".", "").replace(",", "");
+                    CONTEUDO_REMESSA += "0000000000000".substring(0, 13 - sjr.length()) + sjr; // JUROS DE 1 DIA   VALOR DE MORA POR DIA DE ATRASO 161   173  9(11)V9(2) NOTA 12 
+                } else {
+                    CONTEUDO_REMESSA += "0000000000000"; // JUROS DE 1 DIA   VALOR DE MORA POR DIA DE ATRASO 161   173  9(11)V9(2) NOTA 12 
+                }
+
                 CONTEUDO_REMESSA += data_emissao[0] + data_emissao[1] + data_emissao[2].substring(2, 4); // DESCONTO ATÉ   DATA LIMITE PARA CONCESSÃO DE DESCONTO 174   179  9(06) DDMMAA
 
                 CONTEUDO_REMESSA += "0000000000000"; // VALOR DO DESCONTO  VALOR DO DESCONTO A SER CONCEDIDO 180   192  9(11)V9(2) NOTA 13 
@@ -444,10 +455,10 @@ public class Itau extends Cobranca {
                 CONTEUDO_REMESSA += "    "; // BRANCOS COMPLEMENTO DO REGISTRO 382   385 X(04)   
 
                 CONTEUDO_REMESSA += "      "; // DATA DE MORA   DATA DE MORA  386   391 9(06) DDMMAA   
-                CONTEUDO_REMESSA += "00"; // PRAZO  QUANTIDADE DE DIAS 392   393  9(02) NOTA 11 (A) 
+                CONTEUDO_REMESSA += "16"; // PRAZO  QUANTIDADE DE DIAS 392   393  9(02) NOTA 11 (A) 
                 CONTEUDO_REMESSA += " "; // BRANCOS COMPLEMENTO DO REGISTRO 394   394  X(01) 
 
-                CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 395 a 400 9(006) Seqüencial de Registro
+                CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // NUMERO SEQUENCIAL NUMERO SEQUENCIAL DO REGISTRO NO ARQUIVO 395 400 9(006)
                 sequencial_registro++;
                 if (CONTEUDO_REMESSA.length() != 400) {
                     dao.rollback();
@@ -457,6 +468,31 @@ public class Itau extends Cobranca {
 
                 CONTEUDO_REMESSA = "";
 
+                if (bol.getContaCobranca().getMulta() > 0){
+                    CONTEUDO_REMESSA += "1"; // TIPO DE REGISTRO  IDENTIFICAÇÃO DO REGISTRO TRANSAÇÃO 001   001  9(01) 1
+                    CONTEUDO_REMESSA += "2"; // COD. MULTA CODIGO DA MULTA 002 002 X(001) NOTA 35
+
+                    String[] data_multa = DataHoje.DataToArrayString(new DataHoje().incrementarDias(1, bol.getVencimento()));
+                    CONTEUDO_REMESSA += data_multa[0] + data_multa[1] + data_multa[2].substring(2, 4); // DATA DE EMISSÃO  DATA DA EMISSÃO DO TÍTULO 151   156 9(06) NOTA 31
+
+                    Double mu = new Double(0);
+                    
+                    String smu = Moeda.converteDoubleToString(mu).replace(".", "").replace(",", "");
+                    CONTEUDO_REMESSA += "0000000000000".substring(0, 13 - smu.length()) + smu; // MULTA VALOR/PERCENTUAL A SER APLICADO 011 023 9(013) NOTA 35
+                    CONTEUDO_REMESSA += "                                                                                                                                                                                                                                                                                                                                                                                  "; // BRANCOS COMPLEMENTO DE REGISTRO 024 394 X(370)
+                    
+                    CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // NUMERO SEQUENCIAL NUMERO SEQUENCIAL DO REGISTRO NO ARQUIVO 395 400 9(006)
+                    sequencial_registro++;
+                    if (CONTEUDO_REMESSA.length() != 400) {
+                        dao.rollback();
+                        return new RespostaArquivoRemessa(null, "Detalhe de Arquivo menor que 400: " + CONTEUDO_REMESSA);
+                    }
+                    buff_writer.write(CONTEUDO_REMESSA + "\r\n");
+
+                    CONTEUDO_REMESSA = "";
+
+                }
+                
                 RemessaBanco remessaBanco = new RemessaBanco(-1, remessa, bol, listaBoletoRemessa.get(i).getStatusRemessa());
 
                 if (!dao.save(remessaBanco)) {
@@ -503,9 +539,23 @@ public class Itau extends Cobranca {
             return new RespostaArquivoRemessa(null, e.getMessage());
         }
     }
-    
+
     @Override
     public RespostaWebService registrarBoleto() {
         return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
+    }
+
+    public String TICKET_ENTRADA_JSON() {
+
+        JSONObject jSONObject = new JSONObject();
+        jSONObject.put("tipo_ambiente", "2");
+        jSONObject.put("tipo_registro", "1");
+        jSONObject.put("tipo_cobranca", "1");
+        jSONObject.put("tipo_produto", "00006");
+        jSONObject.put("subproduto", "00008");
+
+        String jsonStr = jSONObject.toString().replace("\"", "'");
+
+        return jsonStr;
     }
 }

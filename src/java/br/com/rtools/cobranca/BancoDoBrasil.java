@@ -19,16 +19,37 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.StringReader;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.faces.context.FacesContext;
+import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.ServletContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.MimeHeaders;
+import javax.xml.soap.SOAPConnection;
+import javax.xml.soap.SOAPConnectionFactory;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -38,6 +59,12 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.primefaces.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public class BancoDoBrasil extends Cobranca {
 
@@ -947,75 +974,131 @@ public class BancoDoBrasil extends Cobranca {
         }
 
         try {
-            //String convenio = boleto.getBoletoComposto().substring(0, 6);
-            // idConv É DIFERENTE DO CONVÊNIO QUE ESTA NO INICIO DO NOSSO NUMERO
-            String convenio = Integer.toString(boleto.getContaCobranca().getNrComercioEletronico());
-            Pessoa pessoa = boleto.getPessoa();
-
-            // ACESSA O LINK
             CloseableHttpClient httpclient = HttpClients.createDefault();
-            HttpPost httppost = new HttpPost("https://mpag.bb.com.br/site/mpag/");
+            HttpPost httppost = new HttpPost("https://oauth.hm.bb.com.br/oauth/token");
+            httppost.setHeader("Host", "https://oauth.hm.bb.com.br:43000/oauth/token");
+            httppost.setHeader("Content-Type", "application/x-www-form-urlencoded");
+            httppost.setHeader("Cache-Control", "no-cache");
+            String clientId = "eyJpZCI6IjgwNDNiNTMtZjQ5Mi00YyIsImNvZGlnb1B1YmxpY2Fkb3IiOjEwOSwiY29kaWdvU29mdHdhcmUiOjEsInNlcXVlbmNpYWxJbnN0YWxhY2FvIjoxfQ";
+            String secret = "eyJpZCI6IjBjZDFlMGQtN2UyNC00MGQyLWI0YSIsImNvZGlnb1B1YmxpY2Fkb3IiOjEwOSwiY29kaWdvU29mdHdhcmUiOjEsInNlcXVlbmNpYWxJbnN0YWxhY2FvIjoxLCJzZXF1ZW5jaWFsQ3JlZGVuY2lhbCI6MX0";
+            String originalInput = clientId + ":" + secret;
+            String encodedString = Base64.getEncoder().encodeToString(originalInput.getBytes());
+            httppost.setHeader("Authorization", "Basic " + encodedString);
 
-            // PASSA OS PARAMETROS
             List<NameValuePair> params = new ArrayList(2);
-            params.add(new BasicNameValuePair("idConv", convenio));
-            params.add(new BasicNameValuePair("refTran", boleto.getBoletoComposto()));
-            params.add(new BasicNameValuePair("valor", boleto.getValorString().replace(",", "").replace(".", "")));
-            //params.add(new BasicNameValuePair("qtdPontos", ""));
-            params.add(new BasicNameValuePair("dtVenc", boleto.getVencimento().replace("/", "")));
-            params.add(new BasicNameValuePair("tpPagamento", "2"));
-            params.add(new BasicNameValuePair("cpfCnpj", pessoa.getDocumento().replace("/", "").replace(".", "").replace("-", "")));
-            switch (pessoa.getTipoDocumento().getId()) {
-                case 1: // CPF
-                    params.add(new BasicNameValuePair("indicadorPessoa", "1"));
-                    break;
-                case 2: // CNPJ
-                    params.add(new BasicNameValuePair("indicadorPessoa", "2"));
-                    break;
-                default:
-                    return new RespostaWebService(null, "Tipo de Documento da pessoa inválido! : " + pessoa.getTipoDocumento().getId() + " : " + pessoa.getTipoDocumento().getDescricao());
-            }
-            //params.add(new BasicNameValuePair("valorDesconto", ""));
-            //params.add(new BasicNameValuePair("dataLimiteDesconto", ""));
-            params.add(new BasicNameValuePair("tpDuplicata", "DM"));
-            params.add(new BasicNameValuePair("urlRetorno", "http://localhost:8084/Sindical"));
-            params.add(new BasicNameValuePair("urlInforma", "http://localhost:8084/Sindical"));
-            params.add(new BasicNameValuePair("nome", AnaliseString.normalizeUpper((pessoa.getNome() + "                                                            ").substring(0, 60)).trim()));
-
-            PessoaEndereco pessoa_endereco = new PessoaEnderecoDao().pesquisaEndPorPessoaTipo(pessoa.getId(), 3);
-            if (pessoa_endereco != null) {
-                String end_rua = pessoa_endereco.getEndereco().getLogradouro().getDescricao(),
-                        end_descricao = pessoa_endereco.getEndereco().getDescricaoEndereco().getDescricao(),
-                        end_numero = pessoa_endereco.getNumero(),
-                        end_bairro = pessoa_endereco.getEndereco().getBairro().getDescricao(),
-                        end_cep = pessoa_endereco.getEndereco().getCep(),
-                        end_cidade = pessoa_endereco.getEndereco().getCidade().getCidade(),
-                        end_uf = pessoa_endereco.getEndereco().getCidade().getUf();
-
-                params.add(new BasicNameValuePair("endereco", AnaliseString.normalizeUpper((end_rua + " " + end_descricao + " " + end_numero + " " + end_bairro + "                                        ").substring(0, 60)).trim()));
-                params.add(new BasicNameValuePair("cidade", AnaliseString.normalizeUpper((end_cidade + "                  ").substring(0, 18)).trim()));
-                params.add(new BasicNameValuePair("uf", end_uf));
-                String cep = end_cep.replace("-", "").replace(".", "");
-                if (cep.length() < 8) {
-                    return new RespostaWebService(null, pessoa.getNome() + " CEP INVÁLIDO: " + cep);
-                }
-                params.add(new BasicNameValuePair("cep", cep));
-            } else {
-                return new RespostaWebService(null, "Pessoa não possui endereço! : " + pessoa.getNome());
-            }
-            params.add(new BasicNameValuePair("msgLoja", ""));
-
-            // ENVIA O FORMULARIO
+            params.add(new BasicNameValuePair("grant_type", "client_credentials"));
+            params.add(new BasicNameValuePair("scope", "cobranca.registro-boletos"));
             httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+
             HttpResponse response = httpclient.execute(httppost);
             HttpEntity entity = response.getEntity();
 
-            // RETORNO DA PAGINA
             if (entity != null) {
-                String msg = EntityUtils.toString(entity);
+                String JUROS;
+                if (boleto.getContaCobranca().getJurosMensal() > 0) {
+                    String jr = Moeda.converteDoubleToString(boleto.getContaCobranca().getJurosMensal()).replace(",", ".");
 
-                if (msg.contains("Titulo ja incluido anteriormente. (C008-000)")) {
-                    // System.out.println("Opa, já registrado??");
+                    JUROS = "         <sch:codigoTipoJuroMora>2</sch:codigoTipoJuroMora>\n";
+                    JUROS += "         <sch:percentualJuroMoraTitulo>" + jr + "</sch:percentualJuroMoraTitulo>\n";
+                } else {
+                    JUROS = "         <sch:codigoTipoJuroMora>0</sch:codigoTipoJuroMora>\n";
+                }
+
+                String MULTA;
+                if (boleto.getContaCobranca().getMulta() > 0) {
+                    String mu = Moeda.converteDoubleToString(boleto.getContaCobranca().getMulta()).replace(",", ".");
+                    String dt_mu = new DataHoje().incrementarDias(1, DataHoje.converteData(vencimento));
+                    MULTA = "         <sch:codigoTipoMulta>2</sch:codigoTipoMulta>\n";
+                    MULTA += "         <sch:dataMultaTitulo>" + dt_mu.replace("/", ".") + "</sch:dataMultaTitulo>\n";
+                    MULTA += "         <sch:percentualMultaTitulo>" + mu + "</sch:percentualMultaTitulo>\n";
+                } else {
+                    MULTA = "         <sch:codigoTipoMulta>0</sch:codigoTipoMulta>\n";
+                }
+
+                Pessoa pessoa = boleto.getPessoa();
+                String td;
+                if (pessoa.getTipoDocumento().getId() == 1) { // CPF
+                    td = "         <sch:codigoTipoInscricaoPagador>1</sch:codigoTipoInscricaoPagador>\n"; // CPF
+                } else { // CNPJ
+                    td = "         <sch:codigoTipoInscricaoPagador>2</sch:codigoTipoInscricaoPagador>\n"; // CNPJ
+                }
+
+                String DOCUMENTO = td + "         <sch:numeroInscricaoPagador>" + pessoa.getDocumento().replace("/", "").replace(".", "").replace("-", "") + "</sch:numeroInscricaoPagador>\n";
+                // CNPJ DE TESTE
+                //String DOCUMENTO = td + "         <sch:numeroInscricaoPagador>48486841000187</sch:numeroInscricaoPagador>\n";
+
+                String NOME = AnaliseString.normalizeUpper((pessoa.getNome() + "                                                            ").substring(0, 60));
+
+                String ENDERECO, CEP, BAIRRO, MUNICIPIO, UF;
+
+                PessoaEndereco pessoa_endereco = new PessoaEnderecoDao().pesquisaEndPorPessoaTipo(pessoa.getId(), 3);
+                if (pessoa_endereco != null) {
+                    String end_rua = pessoa_endereco.getEndereco().getLogradouro().getDescricao(),
+                            end_descricao = pessoa_endereco.getEndereco().getDescricaoEndereco().getDescricao(),
+                            end_numero = pessoa_endereco.getNumero(),
+                            end_bairro = pessoa_endereco.getEndereco().getBairro().getDescricao(),
+                            end_cep = pessoa_endereco.getEndereco().getCep(),
+                            end_cidade = pessoa_endereco.getEndereco().getCidade().getCidade(),
+                            end_uf = pessoa_endereco.getEndereco().getCidade().getUf();
+
+                    ENDERECO = AnaliseString.normalizeUpper((end_rua + " " + end_descricao + " " + end_numero + "                                        ").substring(0, 60)).trim();
+
+                    CEP = end_cep.replace("-", "").replace(".", "");
+                    if (CEP.length() < 8) {
+                        return new RespostaWebService(null, pessoa.getNome() + " CEP INVÁLIDO: " + CEP);
+                    }
+
+                    BAIRRO = AnaliseString.normalizeUpper((end_bairro + "                    ").substring(0, 20)).trim();
+
+                    MUNICIPIO = AnaliseString.normalizeUpper((end_cidade + "                  ").substring(0, 20)).trim();
+                    UF = end_uf;
+
+                } else {
+                    return new RespostaWebService(null, "Pessoa não possui endereço! : " + pessoa.getNome());
+                }
+
+                String xmlTicket = TICKET_ENTRADA(JUROS, MULTA, DOCUMENTO, NOME, ENDERECO, CEP, BAIRRO, MUNICIPIO, UF);
+
+                String ret = EntityUtils.toString(entity);
+                JSONObject jSONObject = new JSONObject(ret);
+
+                String soapEndpointUrl = "https://cobranca.homologa.bb.com.br:7101/registrarBoleto?wsdl";
+
+                SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
+                SOAPConnection soapConnection = soapConnectionFactory.createConnection();
+
+                InputStream is = new ByteArrayInputStream(xmlTicket.getBytes());
+
+                SOAPMessage soapMessage = MessageFactory.newInstance().createMessage(null, is);
+
+                MimeHeaders headers = soapMessage.getMimeHeaders();
+                headers.addHeader("SOAPAction", "registrarBoleto");
+                //headers.addHeader("SOAPAction", "https://cobranca.homologa.bb.com.br:7101/registrarBoleto");
+                headers.addHeader("Authorization", "Bearer " + jSONObject.getString("access_token"));
+                //headers.addHeader("Authorization", jSONObject.getString("access_token"));
+                headers.addHeader("Content-Type", "text/xml; charset=uft-8");
+
+                soapMessage.saveChanges();
+
+                SOAPMessage soapResponse = soapConnection.call(soapMessage, soapEndpointUrl);
+
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                soapResponse.writeTo(out);
+                String retorno = new String(out.toByteArray(), "UTF-8");
+
+                soapConnection.close();
+
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder;
+
+                builder = factory.newDocumentBuilder();
+                Document document = builder.parse(new InputSource(new StringReader(retorno)));
+
+                Element rootElement = document.getDocumentElement();
+                String requestQueueID = getString("ns0:codigoRetornoPrograma", rootElement);
+
+                if (requestQueueID.equals("0")) {
+                    // BOLETO REGISTRADO
                     if (boleto.getDtCobrancaRegistrada() == null) {
                         Dao dao = new Dao();
 
@@ -1028,27 +1111,190 @@ public class BancoDoBrasil extends Cobranca {
                     return new RespostaWebService(boleto, "");
                 }
 
-                if (msg.contains("Atenção!")) {
-                    System.out.println("Atenção!");
-                    System.out.println(msg);
-                    return new RespostaWebService(null, "Erro no retorno do Banco do Brasil");
-                }
+                return new RespostaWebService(null, getString("ns0:textoMensagemErro", rootElement));
 
-                if (boleto.getDtCobrancaRegistrada() == null) {
-                    Dao dao = new Dao();
-
-                    boleto.setDtCobrancaRegistrada(DataHoje.dataHoje());
-                    boleto.setDtStatusRetorno(DataHoje.dataHoje());
-                    boleto.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 2));
-
-                    dao.update(boleto, true);
-                    return new RespostaWebService(boleto, "");
-                }
             }
+//
+//        } catch (IOException e) {
+//            return new RespostaWebService(null, e.getMessage());
+//        }
 
-        } catch (IOException e) {
-            e.getMessage();
+        } catch (IOException | UnsupportedOperationException | ParserConfigurationException | SOAPException | SAXException e) {
+            return new RespostaWebService(null, e.getMessage());
         }
+
         return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
     }
+
+    public String TICKET_ENTRADA(String JUROS, String MULTA, String DOCUMENTO, String NOME, String ENDERECO, String CEP, String BAIRRO, String MUNICIPIO, String UF) {
+        return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:sch=\"http://www.tibco.com/schemas/bws_registro_cbr/Recursos/XSD/Schema.xsd\">\n"
+                + "   <soapenv:Header/>\n"
+                + "   <soapenv:Body>\n"
+                + "      <sch:requisicao>\n"
+                + "         <sch:numeroConvenio>" + boleto.getContaCobranca().getBoletoInicial().substring(0, 7) + "</sch:numeroConvenio>\n"
+                + "         <sch:numeroCarteira>17</sch:numeroCarteira>\n"
+                + "         <sch:numeroVariacaoCarteira>19</sch:numeroVariacaoCarteira>\n"
+                + "         <sch:codigoModalidadeTitulo>1</sch:codigoModalidadeTitulo>\n"
+                + "         <sch:dataEmissaoTitulo>" + DataHoje.data().replace("/", ".") + "</sch:dataEmissaoTitulo>\n"
+                + "         <sch:dataVencimentoTitulo>" + boleto.getVencimento().replace("/", ".") + "</sch:dataVencimentoTitulo>\n"
+                + "         <sch:valorOriginalTitulo>" + boleto.getValorString().replace(".", "").replace(",", ".") + "</sch:valorOriginalTitulo>\n"
+                + "         <sch:codigoTipoDesconto>0</sch:codigoTipoDesconto>\n"
+                + JUROS
+                + MULTA
+                + "         <sch:codigoAceiteTitulo>N</sch:codigoAceiteTitulo>\n"
+                + "         <sch:codigoTipoTitulo>2</sch:codigoTipoTitulo>\n"
+                + "         <sch:indicadorPermissaoRecebimentoParcial>S</sch:indicadorPermissaoRecebimentoParcial>\n"
+                + "         <sch:textoNumeroTituloCliente>000" + boleto.getBoletoComposto() + "</sch:textoNumeroTituloCliente>\n"
+                + DOCUMENTO
+                + "         <sch:nomePagador>" + NOME + "</sch:nomePagador>\n"
+                + "         <sch:textoEnderecoPagador>" + ENDERECO + "</sch:textoEnderecoPagador>\n"
+                + "         <sch:numeroCepPagador>" + CEP + "</sch:numeroCepPagador>\n"
+                + "         <sch:nomeMunicipioPagador>" + MUNICIPIO + "</sch:nomeMunicipioPagador>\n"
+                + "         <sch:nomeBairroPagador>" + BAIRRO + "</sch:nomeBairroPagador>\n"
+                + "         <sch:siglaUfPagador>" + UF + "</sch:siglaUfPagador>\n"
+                + "         <sch:codigoChaveUsuario>J1234567</sch:codigoChaveUsuario>\n"
+                + "         <sch:codigoTipoCanalSolicitacao>5</sch:codigoTipoCanalSolicitacao>\n"
+                + "      </sch:requisicao>\n"
+                + "   </soapenv:Body>\n"
+                + "</soapenv:Envelope>";
+    }
+
+    // FUNCIONA --------------------------------------------------------------------------------------------------
+    // FUNCIONA --------------------------------------------------------------------------------------------------
+    // FUNCIONA --------------------------------------------------------------------------------------------------
+    // PORÉM NÃO SOBE JUROS E CORREÇÃO ---------------------------------------------------------------------------
+    // PORÉM NÃO SOBE JUROS E CORREÇÃO ---------------------------------------------------------------------------
+    // PORÉM NÃO SOBE JUROS E CORREÇÃO ---------------------------------------------------------------------------
+//    @Override
+//    public RespostaWebService registrarBoleto() {
+//        // CASO QUEIRA TESTAR A ROTINA DE REGISTRO SEM REGISTRAR COLOCAR http://localhost:8080/Sindical?debug=true
+//        if (TESTE) {
+//            Dao dao = new Dao();
+//
+//            boleto.setDtCobrancaRegistrada(DataHoje.dataHoje());
+//            boleto.setDtStatusRetorno(DataHoje.dataHoje());
+//            boleto.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 2));
+//
+//            dao.update(boleto, true);
+//            return new RespostaWebService(boleto, "");
+//        }
+//
+//        try {
+//            //String convenio = boleto.getBoletoComposto().substring(0, 6);
+//            // idConv É DIFERENTE DO CONVÊNIO QUE ESTA NO INICIO DO NOSSO NUMERO
+//            String convenio = Integer.toString(boleto.getContaCobranca().getNrComercioEletronico());
+//            Pessoa pessoa = boleto.getPessoa();
+//
+//            // ACESSA O LINK
+//            CloseableHttpClient httpclient = HttpClients.createDefault();
+//            HttpPost httppost = new HttpPost("https://mpag.bb.com.br/site/mpag/");
+//
+//            // PASSA OS PARAMETROS
+//            List<NameValuePair> params = new ArrayList(2);
+//            params.add(new BasicNameValuePair("idConv", convenio));
+//            params.add(new BasicNameValuePair("refTran", boleto.getBoletoComposto()));
+//            params.add(new BasicNameValuePair("valor", boleto.getValorString().replace(",", "").replace(".", "")));
+//            //params.add(new BasicNameValuePair("qtdPontos", ""));
+//            params.add(new BasicNameValuePair("dtVenc", boleto.getVencimento().replace("/", "")));
+//            params.add(new BasicNameValuePair("tpPagamento", "2"));
+//            params.add(new BasicNameValuePair("cpfCnpj", pessoa.getDocumento().replace("/", "").replace(".", "").replace("-", "")));
+//            switch (pessoa.getTipoDocumento().getId()) {
+//                case 1: // CPF
+//                    params.add(new BasicNameValuePair("indicadorPessoa", "1"));
+//                    break;
+//                case 2: // CNPJ
+//                    params.add(new BasicNameValuePair("indicadorPessoa", "2"));
+//                    break;
+//                default:
+//                    return new RespostaWebService(null, "Tipo de Documento da pessoa inválido! : " + pessoa.getTipoDocumento().getId() + " : " + pessoa.getTipoDocumento().getDescricao());
+//            }
+//            //params.add(new BasicNameValuePair("valorDesconto", ""));
+//            //params.add(new BasicNameValuePair("dataLimiteDesconto", ""));
+//            params.add(new BasicNameValuePair("tpDuplicata", "DM"));
+//            params.add(new BasicNameValuePair("urlRetorno", "http://localhost:8084/Sindical"));
+//            params.add(new BasicNameValuePair("urlInforma", "http://localhost:8084/Sindical"));
+//            params.add(new BasicNameValuePair("nome", AnaliseString.normalizeUpper((pessoa.getNome() + "                                                            ").substring(0, 60)).trim()));
+//
+//            PessoaEndereco pessoa_endereco = new PessoaEnderecoDao().pesquisaEndPorPessoaTipo(pessoa.getId(), 3);
+//            if (pessoa_endereco != null) {
+//                String end_rua = pessoa_endereco.getEndereco().getLogradouro().getDescricao(),
+//                        end_descricao = pessoa_endereco.getEndereco().getDescricaoEndereco().getDescricao(),
+//                        end_numero = pessoa_endereco.getNumero(),
+//                        end_bairro = pessoa_endereco.getEndereco().getBairro().getDescricao(),
+//                        end_cep = pessoa_endereco.getEndereco().getCep(),
+//                        end_cidade = pessoa_endereco.getEndereco().getCidade().getCidade(),
+//                        end_uf = pessoa_endereco.getEndereco().getCidade().getUf();
+//
+//                params.add(new BasicNameValuePair("endereco", AnaliseString.normalizeUpper((end_rua + " " + end_descricao + " " + end_numero + " " + end_bairro + "                                        ").substring(0, 60)).trim()));
+//                params.add(new BasicNameValuePair("cidade", AnaliseString.normalizeUpper((end_cidade + "                  ").substring(0, 18)).trim()));
+//                params.add(new BasicNameValuePair("uf", end_uf));
+//                String cep = end_cep.replace("-", "").replace(".", "");
+//                if (cep.length() < 8) {
+//                    return new RespostaWebService(null, pessoa.getNome() + " CEP INVÁLIDO: " + cep);
+//                }
+//                params.add(new BasicNameValuePair("cep", cep));
+//            } else {
+//                return new RespostaWebService(null, "Pessoa não possui endereço! : " + pessoa.getNome());
+//            }
+//            params.add(new BasicNameValuePair("msgLoja", ""));
+//
+//            // ENVIA O FORMULARIO
+//            httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+//            HttpResponse response = httpclient.execute(httppost);
+//            HttpEntity entity = response.getEntity();
+//
+//            // RETORNO DA PAGINA
+//            if (entity != null) {
+//                String msg = EntityUtils.toString(entity);
+//
+//                if (msg.contains("Titulo ja incluido anteriormente. (C008-000)")) {
+//                    // System.out.println("Opa, já registrado??");
+//                    if (boleto.getDtCobrancaRegistrada() == null) {
+//                        Dao dao = new Dao();
+//
+//                        boleto.setDtCobrancaRegistrada(DataHoje.dataHoje());
+//                        boleto.setDtStatusRetorno(DataHoje.dataHoje());
+//                        boleto.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 2));
+//
+//                        dao.update(boleto, true);
+//                    }
+//                    return new RespostaWebService(boleto, "");
+//                }
+//
+//                if (msg.contains("Atenção!")) {
+//                    System.out.println("Atenção!");
+//                    System.out.println(msg);
+//                    return new RespostaWebService(null, "Erro no retorno do Banco do Brasil");
+//                }
+//
+//                if (boleto.getDtCobrancaRegistrada() == null) {
+//                    Dao dao = new Dao();
+//
+//                    boleto.setDtCobrancaRegistrada(DataHoje.dataHoje());
+//                    boleto.setDtStatusRetorno(DataHoje.dataHoje());
+//                    boleto.setStatusRetorno((StatusRetorno) dao.find(new StatusRetorno(), 2));
+//
+//                    dao.update(boleto, true);
+//                    return new RespostaWebService(boleto, "");
+//                }
+//            }
+//
+//        } catch (IOException e) {
+//            e.getMessage();
+//        }
+//        return new RespostaWebService(null, "Não existe configuração de WEB SERVICE para esta conta");
+//    }
+    protected String getString(String tagName, Element element) {
+        NodeList list = element.getElementsByTagName(tagName);
+        if (list != null && list.getLength() > 0) {
+            NodeList subList = list.item(0).getChildNodes();
+
+            if (subList != null && subList.getLength() > 0) {
+                return subList.item(0).getNodeValue();
+            }
+        }
+
+        return null;
+    }
+
 }

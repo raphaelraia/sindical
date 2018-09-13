@@ -172,6 +172,7 @@ public class AcademiaServicoValorBean implements Serializable {
             } else {
                 di.rollback();
                 GenericaMensagem.warn("Erro", "Ao adicionar registro!");
+                return;
             }
         } else {
             AcademiaServicoValor asv = (AcademiaServicoValor) di.find(academiaServicoValor);
@@ -182,6 +183,7 @@ public class AcademiaServicoValorBean implements Serializable {
             } else {
                 di.rollback();
                 GenericaMensagem.warn("Erro", "Ao atualizar registro!");
+                return;
             }
         }
 

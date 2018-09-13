@@ -103,6 +103,8 @@ public class ImprimirRecibo {
         PessoaEndereco pe = dbp.pesquisaEndPorPessoaTipo(1, 2);
         MovimentoDao db = new MovimentoDao();
 
+        lista_jaspers.clear();
+
         Collection vetor = new ArrayList();
 
         Guia guia = db.pesquisaGuias(id_lote);
@@ -313,6 +315,8 @@ public class ImprimirRecibo {
             sindicato_nome = AnaliseString.converterCapitalize(sindicato_nome);
         }
 
+        lista_jaspers.clear();
+
         try {
             if (!m_ordenado.isEmpty()) {
 
@@ -364,6 +368,7 @@ public class ImprimirRecibo {
                     JasperPrint print = JasperFillManager.fillReport(jasper, parameter, dtSource);
 
                     lista_jaspers.add(print);
+                    vetor.clear();
                 }
 
             }
@@ -561,6 +566,7 @@ public class ImprimirRecibo {
             JasperPrint print = JasperFillManager.fillReport(jasper, parameter, dtSource);
 
             lista_jaspers.add(print);
+            vetor.clear();
 
             boolean printPdf = true;
 
