@@ -1164,33 +1164,30 @@ public class EmissaoGuiasBean implements Serializable {
 
     public Pessoa getPessoa() {
         if (GenericaSessao.exists("pessoaPesquisa")) {
-            pessoa = (Pessoa) GenericaSessao.getObject("pessoaPesquisa", true);
             fisica = new Fisica();
+            pessoa = (Pessoa) GenericaSessao.getObject("pessoaPesquisa", true);
             FisicaDao db = new FisicaDao();
             fisica = db.pesquisaFisicaPorPessoa(pessoa.getId());
-
-            SociosDao dbs = new SociosDao();
-            socios = dbs.pesquisaSocioPorPessoaAtivo(pessoa.getId());
-            listenerEnabledItensPedido();
-            if (new FunctionsDao().inadimplente(pessoa.getId())) {
-                GenericaMensagem.error("Atenção", "Esta pessoa possui débitos com o Sindicato, não poderá ser responsável!");
-                return null;
-            }
+            loadPessoa();
+//            SociosDao dbs = new SociosDao();
+//            socios = dbs.pesquisaSocioPorPessoaAtivo(pessoa.getId());
+//            listenerEnabledItensPedido();
+//            if (new FunctionsDao().inadimplente(pessoa.getId())) {
+//                GenericaMensagem.error("Atenção", "Esta pessoa possui débitos com o Sindicato, não poderá ser responsável!");
+//                return null;
+//            }
         }
         boolean isFisica = false;
+        if (GenericaSessao.exists("fisicaPesquisaGenerica")) {
+            fisica = (Fisica) GenericaSessao.getObject("fisicaPesquisaGenerica", true);
+            isFisica = true;
+            loadPessoa();
+        }
         if (GenericaSessao.exists("fisicaPesquisa")) {
             fisica = (Fisica) GenericaSessao.getObject("fisicaPesquisa", true);
-            pessoa = new Pessoa();
-            pessoa = fisica.getPessoa();
             isFisica = true;
-            SociosDao dbs = new SociosDao();
-            socios = dbs.pesquisaSocioPorPessoaAtivo(pessoa.getId());
-            loadListServicos();
-            listenerEnabledItensPedido();
-            if (new FunctionsDao().inadimplente(pessoa.getId())) {
-                GenericaMensagem.error("Atenção", "Esta pessoa possui débitos com o Sindicato, não poderá ser responsável!");
-                return null;
-            }
+            loadPessoa();
+
         }
         if (!isFisica) {
             if (GenericaSessao.exists("juridicaPesquisa")) {
@@ -1210,6 +1207,19 @@ public class EmissaoGuiasBean implements Serializable {
 
     public void setPessoa(Pessoa pessoa) {
         this.pessoa = pessoa;
+    }
+
+    public void loadPessoa() {
+        pessoa = new Pessoa();
+        pessoa = fisica.getPessoa();
+        SociosDao dbs = new SociosDao();
+        socios = dbs.pesquisaSocioPorPessoaAtivo(pessoa.getId());
+        loadListServicos();
+        listenerEnabledItensPedido();
+        if (new FunctionsDao().inadimplente(pessoa.getId())) {
+            GenericaMensagem.error("Atenção", "Esta pessoa possui débitos com o Sindicato, não poderá ser responsável!");
+            return;
+        }
     }
 
     public void loadListGrupos() {

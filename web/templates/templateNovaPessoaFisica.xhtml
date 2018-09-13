@@ -9,166 +9,181 @@
         <ui:include src="templatePhotoUpload.xhtml" />
         <ui:include src="templatePhotoCropper.xhtml" />
         <h:form id="form_pessoa_fisica_generica">
-            <p:dialog header="Cadastrar / Pesquisar" widgetVar="dlg_pessoa_fisica_generica" modal="true" resizable="false" width="900" visible="#{fisicaGenericaBean.visibleModal}">
+            <p:dialog header="Cadastrar / Pesquisar" widgetVar="dlg_pessoa_fisica_generica" modal="true" resizable="false" visible="#{fisicaGenericaBean.visibleModal}" responsive="true" height="500" width="800">
                 <p:ajax event="close" listener="#{fisicaGenericaBean.closeModal}" update="form_pessoa_fisica_generica"/>  
+                <p:toolbar>
+                    <f:facet name="left">
+                        <p:commandButton value="Novo" action="#{fisicaGenericaBean.newRegister}" update=":form_pessoa_fisica_generica:" icon="fa fa-file"/>
+                        <p:commandButton value="Salvar e Adicionar" action="#{fisicaGenericaBean.saveFisica}" update=":form_pessoa_fisica_generica:" icon="fa fa-save"/>
+                        <p:commandButton value="Pesquisar" icon="fa fa-search" oncomplete="PF('dlg_autocomplete_fisica_generica').show()" update=":form_pessoa_fisica_generica:i_panel_pesquisa"/>
+                        <span class="ui-separator" style="padding-right: 5px;">
+                            <span class="fa fa-ellipsis-v SoftGray" />
+                        </span>
+                        <p:commandButton title="Fechar" onclick="PF('dlg_pessoa_fisica_generica').hide()" icon="fa fa-close"/>
+
+                    </f:facet>
+                </p:toolbar>
+                <br />
                 <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'PESSOA CADASTRADA EM OPOSIÇÃO', '')}" escape="false" rendered="#{fisicaGenericaBean.fisica.pessoa.existOposicao}" />
-                <h:panelGrid id="i_panel_dados_pf_tab_view_generica">
-                    <p:tabView id="tab_view_pf_generica">
-                        <p:tab  title="Cadastro de Pessoa Física">
-                            <h:panelGrid columns="2" style="width: 400px" columnClasses="verticalAlignTop, verticalAlignTop" >
-                                <p:column>
- 
-                                    <p:messages showDetail="true" closable="true" autoUpdate="true"/>   
+                <h:panelGroup id="i_panel_dados_pf_tab_view_generica" styleClass="ui-fluid">
+                    <h:panelGrid columns="2" columnClasses="verticalAlignTop, verticalAlignTop" >
+                        <p:column>
 
-                                    <p:panel styleClass="fundoCinza">
-                                        <h:panelGrid columns="4" style="width: 200px">
-                                            <p:column>
-                                                <h:outputLabel value="Cadastrado"/><br />
-                                                <p:inputMask value="#{fisicaGenericaBean.fisica.pessoa.criacao}" size="8" mask="99/99/9999" readonly="#{fisicaGenericaBean.fisica.id != -1}"/>
-                                            </p:column>
+                            <p:messages showDetail="true" closable="true" />
 
-                                            <p:column>
-                                                <h:outputLabel value="CPF" style="margin-left: 10px"/><br />
-                                                <p:inputMask size="13" value="#{fisicaGenericaBean.fisica.pessoa.documento}" mask="999.999.999-99" style="margin-left: 10px" readonly="#{fisicaGenericaBean.fisica.id != -1}">
-                                                    <p:ajax event="change" update=":form_pessoa_fisica_generica:" listener="#{fisicaGenericaBean.findCPF}"/>
-                                                </p:inputMask>
-                                            </p:column>
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="4">
+                                    <p:column>
+                                        <h:outputLabel value="Cadastrado"/><br />
+                                        <p:inputMask value="#{fisicaGenericaBean.fisica.pessoa.criacao}" size="8" mask="99/99/9999" readonly="#{fisicaGenericaBean.fisica.id != -1}"/>
+                                    </p:column>
 
-                                            <p:column>
-                                                <h:outputLabel value="RG" style="margin-left: 10px"/><br />
-                                                <p:inputText size="12" maxlength="10" value="#{fisicaGenericaBean.fisica.rg}" style="margin-left: 10px">
-                                                    <p:ajax event="change" update="@this" />
+                                    <p:column>
+                                        <h:outputLabel value="CPF" style="margin-left: 10px"/><br />
+                                        <p:inputMask size="13" value="#{fisicaGenericaBean.fisica.pessoa.documento}" mask="999.999.999-99" style="margin-left: 10px" readonly="#{fisicaGenericaBean.fisica.id != -1}">
+                                            <p:ajax event="change" update=":form_pessoa_fisica_generica:" listener="#{fisicaGenericaBean.findCPF}"/>
+                                        </p:inputMask>
+                                    </p:column>
+
+                                    <p:column>
+                                        <h:outputLabel value="RG" style="margin-left: 10px"/><br />
+                                        <p:inputText size="12" maxlength="10" value="#{fisicaGenericaBean.fisica.rg}" style="margin-left: 10px">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputText>
+                                    </p:column>
+
+                                    <p:column>
+                                        <h:outputLabel value="Nascimento" style="margin-left: 10px"/><br />
+                                        <p:inputMask size="8" value="#{fisicaGenericaBean.fisica.nascimento}" mask="99/99/9999" style="margin-left: 10px" converter="#{isDateString}" readonly="#{fisicaGenericaBean.fisica.id ne -1 and not empty fisicaGenericaBean.fisica.nascimento}">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputMask>
+                                    </p:column>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="1" style="margin-top: 10px; width: 200px">
+                                    <p:column>
+                                        <h:outputLabel value="Nome" /><br />
+                                        <h:column>
+                                            <h:panelGrid columns="2">
+                                                <p:inputText value="#{fisicaGenericaBean.fisica.pessoa.nome}" converter="#{toUpperCase}" style="width: 430px" readonly="#{fisicaGenericaBean.fisica.id != -1}">
+                                                    <p:ajax event="blur"  listener="#{fisicaGenericaBean.existePessoaNomeNascimento()}" />
                                                 </p:inputText>
-                                            </p:column>
-
-                                            <p:column>
-                                                <h:outputLabel value="Nascimento" style="margin-left: 10px"/><br />
-                                                <p:inputMask size="8" value="#{fisicaGenericaBean.fisica.nascimento}" mask="99/99/9999" style="margin-left: 10px" converter="#{isDateString}" readonly="#{fisicaGenericaBean.fisica.id ne -1 and not empty fisicaGenericaBean.fisica.nascimento}">
-                                                    <p:ajax event="blur" update="@this" />
-                                                </p:inputMask>
-                                            </p:column>
-                                        </h:panelGrid>
-
-                                        <h:panelGrid columns="1" style="margin-top: 10px; width: 200px">
-                                            <p:column>
-                                                <h:outputLabel value="Nome" /><br />
-                                                <h:column>
-                                                    <h:panelGrid columns="2">
-                                                            <p:inputText value="#{fisicaGenericaBean.fisica.pessoa.nome}" converter="#{toUpperCase}" style="width: 430px" readonly="#{fisicaGenericaBean.fisica.id != -1}">
-                                                                <p:ajax event="blur"  listener="#{fisicaGenericaBean.existePessoaNomeNascimento()}" />
-                                                            </p:inputText>
-                                                            <p:commandButton icon="ui-icon-pencil" action="#{fisicaGenericaBean.edit(fisicaGenericaBean.fisica)}" immediate="true" rendered="#{fisicaGenericaBean.fisica.id ne -1}"/>
-                                                    </h:panelGrid>
-                                                </h:column>
-                                            </p:column>
-                                        </h:panelGrid>
-                                    </p:panel>
-                                    <h:panelGrid columns="3" style="margin-top: 10px; width: 100%">
-                                        <p:column>
-                                            <h:outputLabel value="Sexo"/><br />
-                                            <p:selectOneRadio value="#{fisicaGenericaBean.fisica.sexo}">
-                                                <p:ajax event="change" update=":form_pessoa_fisica_generica:" />
-                                                <f:selectItem itemValue="F" itemLabel="Feminino"/>
-                                                <f:selectItem itemValue="M" itemLabel="Masculino"/>
-                                            </p:selectOneRadio>
-                                        </p:column>
-
-                                        <h:column>
-                                            <h:outputLabel value="Estado Civil" style=""/><br />
-                                            <p:selectOneMenu value="#{fisicaGenericaBean.fisica.estadoCivil}" style="width: 130px;">
-                                                <p:ajax event="change" update="@this" global="false" />
-                                                <f:selectItem itemValue="Solteiro(a)" itemLabel="Solteiro(a)"/>
-                                                <f:selectItem itemValue="Casado(a)" itemLabel="Casado(a)"/>
-                                                <f:selectItem itemValue="Divorciado(a)" itemLabel="Divorciado(a)"/>
-                                                <f:selectItem itemValue="Viuvo(a)" itemLabel="Viúvo(a)"/>
-                                                <f:selectItem itemValue="Amasiado(a)" itemLabel="Amasiado(a)"/>
-                                                <f:selectItem itemValue="Desquitado(a)" itemLabel="Desquitado(a)"/>
-                                                <f:selectItem itemValue="Separado(a)" itemLabel="Separado(a)"/>
-                                                <f:selectItem itemValue="Indefinido" itemLabel="Indefinido"/>
-                                            </p:selectOneMenu>
+                                                <p:commandButton icon="ui-icon-pencil" action="#{fisicaGenericaBean.edit(fisicaGenericaBean.fisica)}" immediate="true" rendered="#{fisicaGenericaBean.fisica.id ne -1}"/>
+                                            </h:panelGrid>
                                         </h:column>
-
-                                        <h:column>
-                                            <p:outputLabel value="Naturalidade" /><br />                                                
-                                            <p:commandButton  icon="ui-icon-search" value="#{fisicaGenericaBean.fisica.naturalidade}" action="#{chamadaPaginaBean.cidade}" title="Pesquisar outra Naturalidade" style="margin-right: 10px;"/>
-                                        </h:column>
-                                    </h:panelGrid>
-
-                                    <h:panelGrid columns="1">
-                                        <h:outputLabel value="Nome do Pai" />
-                                        <p:inputText maxlength="100" value="#{fisicaGenericaBean.fisica.pai}" converter="#{toUpperCase}" style="width: 460px">
-                                            <f:ajax event="blur" render="@this" />
-                                        </p:inputText>           
-
-                                        <h:outputLabel value="Nome da Mãe" />
-                                        <p:inputText maxlength="100" value="#{fisicaGenericaBean.fisica.mae}" converter="#{toUpperCase}" style="width: 460px">
-                                            <f:ajax event="blur" render="@this" />
-                                        </p:inputText>                                
-                                    </h:panelGrid>
-                                </p:column>
-
+                                    </p:column>
+                                </h:panelGrid>
+                            </p:panel>
+                            <h:panelGrid columns="3" style="margin-top: 10px; width: 100%">
                                 <p:column>
-                                    <p:panel header="Foto do Perfil" style="width: 265px; text-align: center" id="i_panel_foto_pf_generica">
-                                        <h:column rendered="#{not empty fisicaGenericaBean.fisica.pessoa.foto}">
-                                            <p:graphicImage name="#{fisicaGenericaBean.fisica.pessoa.foto}" cache="false" style="max-width: 250px; max-height: 395px" />
-                                        </h:column>
-                                    </p:panel>                                                
-                                    <h:panelGrid columns="4">
-                                        <p:commandButton icon="photocam" value="Capturar Foto" title="Capturar Foto" action="#{photoCapture.openAndSave(fisicaGenericaBean.fisica, ':form_pessoa_fisica_generica:')}" global="false" disabled="#{fisicaGenericaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('libera_camera', 1)}"/>
-                                        <p:commandButton icon="ui-icon-arrowthick-1-n" value="Upload Foto" title="Enviar Foto" action="#{photoUpload.openAndSave(fisicaGenericaBean.fisica, ':form_pessoa_fisica_generica:')}" disabled="#{fisicaGenericaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('libera_upload', 1)}" />
-                                        <p:commandButton icon="ui-icon-scissors" value="Cortar Foto" title="Cortar Foto" action="#{photoCropper.openAndSave(fisicaGenericaBean.fisica, ':form_pessoa_fisica_generica:')}" global="false" disabled="#{fisicaGenericaBean.fisica.id == -1 or (fisicaGenericaBean.fisica.pessoa.fotoResource eq 'images/user_male.png' or fisicaGenericaBean.fisica.pessoa.fotoResource eq 'images/user_female.png')}"/>
-                                        <p:commandButton icon="ui-icon-trash" title="Remover Foto" action="#{fisicaGenericaBean.deleteImage()}" rendered="#{not empty fisicaGenericaBean.fisica.pessoa.foto}" update=":form_pessoa_fisica_generica:"  disabled="#{fisicaGenericaBean.fisica.id == -1}"/>
-                                    </h:panelGrid>
+                                    <h:outputLabel value="Sexo"/><br />
+                                    <p:selectOneRadio value="#{fisicaGenericaBean.fisica.sexo}">
+                                        <p:ajax event="change" update=":form_pessoa_fisica_generica:" />
+                                        <f:selectItem itemValue="F" itemLabel="Feminino"/>
+                                        <f:selectItem itemValue="M" itemLabel="Masculino"/>
+                                    </p:selectOneRadio>
                                 </p:column>
+
+                                <h:column>
+                                    <h:outputLabel value="Estado Civil" style=""/><br />
+                                    <p:selectOneMenu value="#{fisicaGenericaBean.fisica.estadoCivil}" style="width: 130px;">
+                                        <p:ajax event="change" update="@this" global="false" />
+                                        <f:selectItem itemValue="Solteiro(a)" itemLabel="Solteiro(a)"/>
+                                        <f:selectItem itemValue="Casado(a)" itemLabel="Casado(a)"/>
+                                        <f:selectItem itemValue="Divorciado(a)" itemLabel="Divorciado(a)"/>
+                                        <f:selectItem itemValue="Viuvo(a)" itemLabel="Viúvo(a)"/>
+                                        <f:selectItem itemValue="Amasiado(a)" itemLabel="Amasiado(a)"/>
+                                        <f:selectItem itemValue="Desquitado(a)" itemLabel="Desquitado(a)"/>
+                                        <f:selectItem itemValue="Separado(a)" itemLabel="Separado(a)"/>
+                                        <f:selectItem itemValue="Indefinido" itemLabel="Indefinido"/>
+                                    </p:selectOneMenu>
+                                </h:column>
+
+                                <h:column>
+                                    <p:outputLabel value="Naturalidade" /><br />                                                
+                                    <p:commandButton  icon="ui-icon-search" value="#{fisicaGenericaBean.fisica.naturalidade}" action="#{chamadaPaginaBean.cidade}" title="Pesquisar outra Naturalidade" style="margin-right: 10px;"/>
+                                </h:column>
                             </h:panelGrid>
 
-                            <h:panelGrid columns="3">
-                                <p:commandButton value="Salvar e Adicionar" action="#{fisicaGenericaBean.saveFisica}" update=":form_pessoa_fisica_generica:"/>
-                                <p:commandButton value="Novo" action="#{fisicaGenericaBean.newRegister}" update=":form_pessoa_fisica_generica:"/>
-                                <p:commandButton value="Cancelar" onclick="PF('dlg_pessoa_fisica_generica').hide()"/>
-                            </h:panelGrid>
-                        </p:tab>
+                            <h:panelGrid columns="1">
+                                <h:outputLabel value="Nome do Pai" />
+                                <p:inputText maxlength="100" value="#{fisicaGenericaBean.fisica.pai}" converter="#{toUpperCase}" style="width: 460px">
+                                    <f:ajax event="blur" render="@this" />
+                                </p:inputText>           
 
-
-                        <p:tab id="tab_pesquisa_pf_generica" title="Pesquisa"  disabled="#{fisicaGenericaBean.fisica.pessoa.id != -1}">
-                            <p:messages id="i_msg2_pf_generica" showDetail="true" closable="true" />   
-                            <h:panelGrid id="i_panel_pesquisa" columns="1" style="width: 400px">
-                                <h:outputLabel value="Pesquisar" />
-                                <p:autoComplete value="#{fisicaGenericaBean.fisicaPesquisa}" completeMethod="#{fisicaGenericaBean.listaPesquisaFisica}" size="100" scrollHeight="300" disabled="#{fisicaGenericaBean.fisica.id != -1}"
-                                                var="fisica" itemLabel="#{fisica.detalhes}" itemValue="#{fisica}" converter="fisicaConverter" forceSelection="true" queryDelay="1000" maxlength="100" minQueryLength="1">
-                                    <p:ajax event="itemSelect" listener="#{fisicaGenericaBean.selectItem()}" update=":form_pessoa_fisica_generica:"/>
-                                </p:autoComplete>
-
-                                <p:panel styleClass="fundoCinza" rendered="#{fisicaGenericaBean.fisicaPesquisa.id != -1}" style="margin-top: 20px">
-                                    <h:panelGrid columns="4" style="width: 200px">
-                                        <p:column>
-                                            <h:outputLabel value="Cadastrado"/><br />
-                                            <p:inputText value="#{fisicaGenericaBean.fisicaPesquisa.pessoa.criacao}" readonly="true" size="8" />
-                                        </p:column>
-
-                                        <p:column>
-                                            <h:outputLabel value="CPF" style="margin-left: 10px"/><br />
-                                            <p:inputText size="13" value="#{fisicaGenericaBean.fisicaPesquisa.pessoa.documento}" readonly="true" style="margin-left: 10px" />
-                                        </p:column>
-
-                                        <p:column>
-                                            <h:outputLabel value="RG" style="margin-left: 10px"/><br />
-                                            <p:inputText size="12" maxlength="10" value="#{fisicaGenericaBean.fisicaPesquisa.rg}" readonly="true" style="margin-left: 10px"/>
-                                        </p:column>
-
-                                        <p:column>
-                                            <h:outputLabel value="Nascimento" style="margin-left: 10px"/><br />
-                                            <p:inputText size="8" value="#{fisicaGenericaBean.fisicaPesquisa.nascimento}" readonly="true" style="margin-left: 10px"/>
-                                        </p:column>
-                                    </h:panelGrid>
-                                </p:panel>
-                                <p:commandButton value="Selecionar" action="#{fisicaGenericaBean.saveFisica}" update=":form_pessoa_fisica_generica:" rendered="#{fisicaGenericaBean.fisicaPesquisa.id != -1}" />
+                                <h:outputLabel value="Nome da Mãe" />
+                                <p:inputText maxlength="100" value="#{fisicaGenericaBean.fisica.mae}" converter="#{toUpperCase}" style="width: 460px">
+                                    <f:ajax event="blur" render="@this" />
+                                </p:inputText>                                
                             </h:panelGrid>
 
-                        </p:tab>
-                    </p:tabView>
-                </h:panelGrid>
+                            <h:panelGrid columns="2" cellspacing="2">
+                                <p:outputLabel value="Celular: "/>
+                                <p:outputLabel value="Telefone: "/>
+                                <p:inputMask value="#{emissaoGuiasBean.fisicaNovoCadastro.pessoa.telefone3}" mask="(99) 99999-9999" />
+                                <p:inputMask value="#{emissaoGuiasBean.fisicaNovoCadastro.pessoa.telefone1}" mask="(99) 9999-9999" />
+                            </h:panelGrid>
+                        </p:column>
+
+                        <p:column>
+                            <p:panel header="Foto do Perfil" style="width: 165px; text-align: center" id="i_panel_foto_pf_generica">
+                                <h:column rendered="#{not empty fisicaGenericaBean.fisica.pessoa.foto}">
+                                    <p:graphicImage name="#{fisicaGenericaBean.fisica.pessoa.foto}" cache="false" style="max-width: 150px; max-height: 295px" />
+                                </h:column>
+                            </p:panel>                                                
+                            <h:panelGrid columns="4" style="width: 100%!important">
+                                <p:commandButton icon="fa fa-camera" title="Capturar Foto" action="#{photoCapture.openAndSave(fisicaGenericaBean.fisica, ':form_pessoa_fisica_generica:')}" global="false" disabled="#{fisicaGenericaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('libera_camera', 1)}"/>
+                                <p:commandButton icon="fa fa-upload" title="Enviar Foto" action="#{photoUpload.openAndSave(fisicaGenericaBean.fisica, ':form_pessoa_fisica_generica:')}" disabled="#{fisicaGenericaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('libera_upload', 1)}" />
+                                <p:commandButton icon="fa fa-scissors" title="Cortar Foto" action="#{photoCropper.openAndSave(fisicaGenericaBean.fisica, ':form_pessoa_fisica_generica:')}" global="false" disabled="#{fisicaGenericaBean.fisica.id == -1 or (fisicaGenericaBean.fisica.pessoa.fotoResource eq 'images/user_male.png' or fisicaGenericaBean.fisica.pessoa.fotoResource eq 'images/user_female.png')}"/>
+                                <p:commandButton icon="fa fa-trash" title="Remover" action="#{fisicaGenericaBean.deleteImage()}" rendered="#{not empty fisicaGenericaBean.fisica.pessoa.foto}" update=":form_pessoa_fisica_generica:"  disabled="#{fisicaGenericaBean.fisica.id == -1}"/>
+                            </h:panelGrid>
+                        </p:column>
+                    </h:panelGrid>
+                </h:panelGroup>
             </p:dialog>
+
+            <p:dialog widgetVar="dlg_autocomplete_fisica_generica" modal="false" resizable="false" responsive="true" header="Pesquisa rápida" height="500" width="800">
+                <p:messages id="i_msg2_pf_generica" showDetail="true" closable="true" />   
+                <h:panelGroup layout="block" id="i_panel_pesquisa">
+                <h:panelGroup layout="block"  rendered="#{fisicaGenericaBean.fisica.pessoa.id == -1}" styleClass="ui-fluid">
+                    <div class="ui-g">
+                        <div class="ui-g-12 ui-lg-12">
+                            <p:autoComplete value="#{fisicaGenericaBean.fisicaPesquisa}" completeMethod="#{fisicaGenericaBean.listaPesquisaFisica}" scrollHeight="300" disabled="#{fisicaGenericaBean.fisica.id != -1}"
+                                            var="fisica" itemLabel="#{fisica.detalhes}" itemValue="#{fisica}" converter="fisicaConverter" forceSelection="true" queryDelay="1000" maxlength="100" minQueryLength="1" placeholder="Digite o nome da pessoa aqui">
+                                <p:ajax event="itemSelect" listener="#{fisicaGenericaBean.selectItem()}" update=":form_pessoa_fisica_generica:"/>
+                            </p:autoComplete>
+                        </div>
+                    </div>
+                    <hr />
+                    <p:panel styleClass="fundoCinza" rendered="#{fisicaGenericaBean.fisicaPesquisa.id != -1}" style="margin-top: 20px">
+                        <h:panelGrid columns="4" style="width: 200px">
+                            <p:column>
+                                <h:outputLabel value="Cadastrado"/><br />
+                                <p:inputText value="#{fisicaGenericaBean.fisicaPesquisa.pessoa.criacao}" readonly="true" size="8" />
+                            </p:column>
+
+                            <p:column>
+                                <h:outputLabel value="CPF" style="margin-left: 10px"/><br />
+                                <p:inputText size="13" value="#{fisicaGenericaBean.fisicaPesquisa.pessoa.documento}" readonly="true" style="margin-left: 10px" />
+                            </p:column>
+
+                            <p:column>
+                                <h:outputLabel value="RG" style="margin-left: 10px"/><br />
+                                <p:inputText size="12" maxlength="10" value="#{fisicaGenericaBean.fisicaPesquisa.rg}" readonly="true" style="margin-left: 10px"/>
+                            </p:column>
+
+                            <p:column>
+                                <h:outputLabel value="Nascimento" style="margin-left: 10px"/><br />
+                                <p:inputText size="8" value="#{fisicaGenericaBean.fisicaPesquisa.nascimento}" readonly="true" style="margin-left: 10px"/>
+                            </p:column>
+                        </h:panelGrid>
+                    </p:panel>
+                    <p:commandButton value="Selecionar" action="#{fisicaGenericaBean.saveFisica}" update=":form_pessoa_fisica_generica:" rendered="#{fisicaGenericaBean.fisicaPesquisa.id != -1}" />
+                </h:panelGroup>
+                </h:panelGroup>
+
+            </p:dialog>
+
             <p:dialog widgetVar="dlg_sugestoes_fisica_generica" modal="true" resizable="false" height="250" width="1024" header="Existem cadastros com mesmo nome">
                 <h:panelGroup id="i_sugestoes" layout="block">
                     <p:dataTable value="#{fisicaGenericaBean.listFisicaSugestao}" var="fisicaSugestao" emptyMessage="Nenhum registro encontrado" scrollHeight="200" scrollable="true" paginator="true" rows="100">

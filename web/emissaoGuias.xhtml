@@ -43,15 +43,15 @@
                             <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'CADASTRO BLOQUEADO')}" escape="false" rendered="#{emissaoGuiasBean.pessoa.pessoaComplemento.bloqueiaObsAviso}" />
                             <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'AVISO', emissaoGuiasBean.pessoa.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty emissaoGuiasBean.pessoa.pessoaComplemento.obsAviso}" />
                             <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'BENEFICIÁRIO CADASTRADA EM OPOSIÇÃO', '')}" escape="false" rendered="#{emissaoGuiasBean.pessoa.existOposicao}" />
-                            <p:messages autoUpdate="true" showDetail="true" showSummary="true" closable="true" id="i_message" redisplay="true"/>
-                            <p:growl autoUpdate="false" showDetail="true" showSummary="true" id="i_message_grow" redisplay="true"/>
+                            <p:messages showDetail="true" showSummary="true" closable="true" id="i_message" redisplay="true"/>
+                            <p:growl showDetail="true" showSummary="true" id="i_message_grow" redisplay="true"/>
                             <p:panel header="Beneficiário" styleClass="margin-top-max">
-                                <h:panelGrid columns="5">
+                                <h:panelGrid columns="6">
                                     <p:outputLabel value="Nome: " />
                                     <p:inputText id="nomeBene" size="80" value="#{emissaoGuiasBean.pessoa.nome}" readonly="true" />
                                     <p:commandButton value="Pesquisar" onclick="PF('dlg_tipo_pessoa').show()" icon="ui-icon-search" rendered="#{emissaoGuiasBean.lote.id == -1}" disabled="#{emissaoGuiasBean.rotinaRetorno ne null}"/>
                                     <p:commandButton value="Local" action="#{emissaoGuiasBean.pesquisaPessoaSindicato}" icon="ui-icon-search" rendered="#{emissaoGuiasBean.lote.id == -1}" update="form_eg" disabled="#{emissaoGuiasBean.rotinaRetorno ne null}"/>
-                                    <p:commandButton value="Nova Pessoa - Cadastrar" actionListener="#{emissaoGuiasBean.clear(3)}" oncomplete="PF('dlg_cadastro').show()" rendered="#{emissaoGuiasBean.pessoa.id == -1}" icon="ui-icon-circle-plus" style="margin-left: 70px!important" update=":form_eg:i_panel_sem_cadastro" disabled="#{emissaoGuiasBean.rotinaRetorno ne null}"/>
+                                    <p:commandButton value="Cadastrar" onclick="PF('dlg_cadastrar_pessoa').show()" rendered="#{emissaoGuiasBean.pessoa.id == -1}" icon="ui-icon-circle-plus" disabled="#{emissaoGuiasBean.rotinaRetorno ne null}"/>
                                 </h:panelGrid>
 
                                 <h:panelGrid columns="1" rendered="#{emissaoGuiasBean.socios.id != -1}">
@@ -259,47 +259,16 @@
                                 </h:panelGrid>
                             </p:dialog>
 
-                            <p:dialog id="i_dlg_cadastro" header="Cadastrar Pessoa" widgetVar="dlg_cadastro" modal="true" width="500" closable="true" >
-                                <h:panelGrid id="i_panel_sem_cadastro">
-                                    <h:outputScript name="script_primefaces.js" library="js" />
-                                    <p:messages id="i_msg" showDetail="true" closable="true" autoUpdate="true"/>  
-                                    <h:panelGrid columns="2" >
-                                        <p:outputLabel value="CPF: " />
-                                        <p:inputMask size="12" value="#{emissaoGuiasBean.fisicaNovoCadastro.pessoa.documento}" mask="999.999.999-99" >
-                                            <p:ajax event="change" update="i_panel_sem_cadastro" listener="#{emissaoGuiasBean.pesquisaSemCadastro('cpf')}" />
-                                        </p:inputMask>
-                                        <p:outputLabel value="RG: " />
-                                        <p:inputText size="12" value="#{emissaoGuiasBean.fisicaNovoCadastro.rg}" >
-                                            <p:ajax event="change" update="i_panel_sem_cadastro" listener="#{emissaoGuiasBean.pesquisaSemCadastro('rg')}"/>
-                                        </p:inputText>
-                                        <h:outputLabel value="Nome: " />
-                                        <p:inputText value="#{emissaoGuiasBean.fisicaNovoCadastro.pessoa.nome}" size="50" converter="#{toUpperCase}">
-                                            <p:ajax event="change" update="i_panel_sem_cadastro" listener="#{emissaoGuiasBean.pesquisaSemCadastro('nome')}" />
-                                        </p:inputText>
-                                        <h:outputLabel value="Data de Nascimento: " />
-                                        <p:inputMask size="8" value="#{emissaoGuiasBean.fisicaNovoCadastro.nascimento}" mask="99/99/9999" converter="#{isDateString}">
-                                            <p:ajax event="change" update="i_panel_sem_cadastro" listener="#{emissaoGuiasBean.pesquisaSemCadastro('nascimento')}"/>
-                                        </p:inputMask>
-                                        <p:outputLabel value="Telefone: "/>
-                                        <p:inputText value="#{emissaoGuiasBean.fisicaNovoCadastro.pessoa.telefone1}" styleClass="ddd_telefone" style="width: 120px"/>
-                                    </h:panelGrid>
-                                    <br />
-                                    <f:facet name="footer">
-                                        <h:panelGrid columns="3">
-                                            <p:commandButton value="Salvar" action="#{emissaoGuiasBean.saveSemCadastro()}" title="Salvar Cadastro" rendered="#{emissaoGuiasBean.fisicaNovoCadastro.id == -1}"/>
-                                            <p:commandButton value="Selecionar" action="#{emissaoGuiasBean.selecionarPessoaCadastro()}" title="Selecionar Pessoa" update=":form_eg:" oncomplete="PF('dlg_cadastro').hide()" rendered="#{emissaoGuiasBean.fisicaNovoCadastro.id != -1}" style="font-weight: bold"/>
-                                            <p:commandButton value="Limpar" action="#{emissaoGuiasBean.clear(3)}" update="i_panel_sem_cadastro" />
-                                            <p:commandButton value="Sair" onclick="PF('dlg_cadastro').hide()"/>
-                                        </h:panelGrid>
-                                    </f:facet>
-                                </h:panelGrid>
-                            </p:dialog>
-
                             <p:dialog widgetVar="dlg_tipo_pessoa"  modal="true" resizable="true" header="Pesquisar por pessoa" width="450">
                                 <h:panelGrid columns="3">
                                     <!-- <p:commandButton value="Pessoa" action="# {chamadaPaginaBean.pesquisa('pesquisaPessoa')}" icon="ui-icon-search"/> -->
                                     <p:commandButton value="Física / Sócio" action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaFisica', 'fisicaBean')}" icon="ui-icon-search"/>
                                     <p:commandButton value="Jurídica / Empresa" action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaJuridica')}" icon="ui-icon-search"/>
+                                </h:panelGrid>
+                            </p:dialog>                    
+                            <p:dialog widgetVar="dlg_cadastrar_pessoa"  modal="true" resizable="true" header="Cadastrar" width="450">
+                                <h:panelGrid columns="3">
+                                    <p:commandButton value="Pessoa Física" action="#{fisicaGenericaBean.openModal()}" icon="ui-icon-circle-plus" disabled="#{emissaoGuiasBean.rotinaRetorno ne null}" rendered="#{emissaoGuiasBean.pessoa.id == -1}" oncomplete="PF('dlg_cadastrar_pessoa').hide()"/>
                                 </h:panelGrid>
                             </p:dialog>                    
 
@@ -408,7 +377,7 @@
                             <p:dialog widgetVar="dlg_autentica_usuario" modal="true" header="Autenticar Usuário" width="380" >
                                 <p:ajax event="close" listener="#{autenticaUsuario.clear()}" update="i_autentica_usuario"/>
                                 <h:panelGrid id="i_autentica_usuario">
-                                    <p:messages autoUpdate="false" closable="true" showDetail="true" />
+                                    <p:messages closable="true" showDetail="true" />
 
                                     <h:panelGrid columns="2">
                                         <h:column>
@@ -436,6 +405,7 @@
                                 </h:panelGrid>
                             </p:dialog>  
                         </h:form>
+                        <ui:include src="templates/templateNovaPessoaFisica.xhtml"/>
                     </p:panel>
                 </f:view>
                 <!-- FINALIZA div wrap main -->

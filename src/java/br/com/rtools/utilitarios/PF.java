@@ -25,7 +25,11 @@ public class PF {
      * @param string
      */
     public static void update(String string) {
-        RequestContext.getCurrentInstance().update(string);
+        try {
+            RequestContext.getCurrentInstance().update(string);
+        } catch (Exception e) {
+
+        }
     }
 
     /**

@@ -163,24 +163,29 @@ public class FisicaGenericaBean implements Serializable {
         closeModal();
         PF.update("form_pessoa_fisica_generica");
         GenericaSessao.put("fisicaPesquisaGenerica", fisica);
-        if (rotina.getId() == 469) {
-            GenericaSessao.put("pesquisaFisicaTipo", "dependente");
-            PF.update("form_campeonato_equipe");
-        } else if (rotina.getId() == 478) {
-            PF.update("form_person");
-            PF.update("form_agendamentos");
-        }
+        updateForms(rotina);
+//        if (rotina.getId() == 469) {
+//            GenericaSessao.put("pesquisaFisicaTipo", "dependente");
+//            PF.update("form_campeonato_equipe");
+//        } else if (rotina.getId() == 478) {
+//            PF.update("form_person");
+//            PF.update("form_agendamentos");
+//        } else if (rotina.getId() == 132) {
+//            PF.update("form_pessoa_fisica_generica");
+//            PF.update("form_eg");
+//        }
         fisica = new Fisica();
     }
 
     public void openModal() {
         fisica = new Fisica();
         fisica.setEstadoCivil("Solteiro(a)");
-        visibleModal = true;
-        PF.update("form_pessoa_fisica_generica");
         listFisicaSugestao = new ArrayList();
         listFisicaSugestao2 = new ArrayList();
         fisicaPesquisa = null;
+        visibleModal = true;
+        newRegister(); 
+        PF.update("form_pessoa_fisica_generica");
     }
 
     public void closeModal() {
@@ -320,14 +325,27 @@ public class FisicaGenericaBean implements Serializable {
     public void useFisicaSugestao(Fisica f) {
         GenericaSessao.put("fisicaPesquisaGenerica", f);
         Rotina r = new Rotina().get();
-        if (r.getId() == 469) {
-            GenericaSessao.put("pesquisaFisicaTipo", "dependente");
-            PF.update("form_campeonato_equipe");
-        } else if (r.getId() == 478) {
-            PF.update("form_person");
-            PF.update("form_agendamentos");
-        }
+        updateForms(r);
         closeModal();
+    }
+
+    public void updateForms(Rotina r) {
+        switch (r.getId()) {
+            case 469:
+                GenericaSessao.put("pesquisaFisicaTipo", "dependente");
+                PF.update("form_campeonato_equipe");
+                break;
+            case 478:
+                PF.update("form_person");
+                PF.update("form_agendamentos");
+                break;
+            case 132:
+                PF.update("form_pessoa_fisica_generica");
+                PF.update("form_eg");
+                break;
+            default:
+                break;
+        }
     }
 
     public void listenerSubSocios(Integer idPessoa) {
@@ -419,13 +437,7 @@ public class FisicaGenericaBean implements Serializable {
         if (fisicaPesquisa != null) {
             Rotina r = new Rotina().get();
             GenericaSessao.put("fisicaPesquisaGenerica", fisicaPesquisa);
-            if (r.getId() == 469) {
-                GenericaSessao.put("pesquisaFisicaTipo", "dependente");
-                PF.update("form_campeonato_equipe");
-            } else if (r.getId() == 478) {
-                PF.update("form_person");
-                PF.update("form_agendamentos");
-            }
+            updateForms(r);
             fisicaPesquisa = new Fisica();
             fisica = new Fisica();
             closeModal();
@@ -441,10 +453,6 @@ public class FisicaGenericaBean implements Serializable {
     }
 
     public String newRegister() {
-        File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/" + "foto/" + getUsuario().getId() + "/perfil.png"));
-        if (f.exists()) {
-            f.delete();
-        }
         fisica = new Fisica();
         fisicaPesquisa = new Fisica();
         fisica.setEstadoCivil("Solteiro(a)");
@@ -454,6 +462,10 @@ public class FisicaGenericaBean implements Serializable {
         nat = c.getCidade();
         nat = nat + " - " + c.getUf();
         fisica.setNaturalidade(nat);
+        File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/" + "foto/" + getUsuario().getId() + "/perfil.png"));
+        if (f.exists()) {
+            f.delete();
+        }
         return null;
     }
 
