@@ -292,22 +292,22 @@ public class LancamentoIndividualBean implements Serializable {
         list_log.add("Parcelas: " + listaMovimento.size());
         list_log.add("Entrada: " + entrada);
         list_log.add("Histórico: " + lote.getHistorico());
-
-        if (pessoaComplemento.getId() == -1) {
-            pessoaComplemento.setCobrancaBancaria(true);
-            pessoaComplemento.setNrDiaVencimento(idDia);
-            pessoaComplemento.setPessoa(fisica.getPessoa());
-
-            if (!dao.save(pessoaComplemento)) {
-                GenericaMensagem.error("Atenção", "Erro ao salvar Pessoa Complemento!");
-                dao.rollback();
-                return null;
-            }
-            list_log.add("-------------------------------------------------------------------");
-            list_log.add("Pessoa Complemento ID: " + pessoaComplemento.getId());
-            list_log.add("Pessoa Complemento Cobrança Bancaria: " + (pessoaComplemento.getCobrancaBancaria() ? "SIM" : "NÃO"));
-            list_log.add("Pessoa Complemento Dia de Vencimento: " + pessoaComplemento.getNrDiaVencimento());
-        }
+//
+//        if (pessoaComplemento.getId() == -1) {
+//            pessoaComplemento.setCobrancaBancaria(true);
+//            pessoaComplemento.setNrDiaVencimento(idDia);
+//            pessoaComplemento.setPessoa(fisica.getPessoa());
+//
+//            if (!dao.save(pessoaComplemento)) {
+//                GenericaMensagem.error("Atenção", "Erro ao salvar Pessoa Complemento!");
+//                dao.rollback();
+//                return null;
+//            }
+//            list_log.add("-------------------------------------------------------------------");
+//            list_log.add("Pessoa Complemento ID: " + pessoaComplemento.getId());
+//            list_log.add("Pessoa Complemento Cobrança Bancaria: " + (pessoaComplemento.getCobrancaBancaria() ? "SIM" : "NÃO"));
+//            list_log.add("Pessoa Complemento Dia de Vencimento: " + pessoaComplemento.getNrDiaVencimento());
+//        }
 
         for (int i = 0; i < listaMovimento.size(); i++) {
             ((Movimento) listaMovimento.get(i).getArgumento0()).setLote(lote);

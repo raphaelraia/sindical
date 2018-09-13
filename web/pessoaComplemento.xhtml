@@ -25,7 +25,7 @@
                         <f:selectItems value="#{pessoaComplementoBean.listaDataVencimento}" />
                     </p:selectOneMenu>
                 </p:column>
-                
+
                 <p:column>
                     <h:outputLabel value="Status Cobrança" /><br />
                     <p:selectOneMenu value="#{pessoaComplementoBean.indexStatusCobranca}" disabled="#{idPessoa == -1}">
@@ -56,7 +56,6 @@
             <f:facet name="footer">
                 <p:commandButton action="#{pessoaComplementoBean.update(idPessoa)}" value="Atualizar" update="i_panel_complemento" rendered="#{idPessoa != -1}"/>
             </f:facet>
-        </h:panelGroup>
-
+        </p:panel>
     </f:view>
 </ui:composition>
